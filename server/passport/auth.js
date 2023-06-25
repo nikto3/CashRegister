@@ -1,23 +1,20 @@
 const jwt = require("jsonwebtoken");
-const {getWaiterByUsernameQuery} = require("../repository/waiter.repository");
+const { getuserByUsernameQuery } = require("../repository/user.repository");
 
-
-module.exports = async function(token){
-
+module.exports = async function (token) {
     return new Promise((resolve, reject) => {
-
-        jwt.verify(token, process.env.SECRET, {algorithms: ['HS256']},async (err, decoded) => {
-
-            if (!decoded){
-                return reject('Token not recognized.');
+        jwt.verify(
+            token,
+            process.env.SECRET,
+            { algorithms: ["HS256"], ignoreExpiration: false },
+            async (err, decoded) => {
+                if (err) {
+                    return reject(new Error("Token verification failed."));
+                }
+                const username = decoded.username;
+                const user = await getuserByUsernameQuery(username);
+                resolve(user);
             }
-            if (err){
-                return reject('Unexpected Error');
-            }
-            const username = decoded.username;
-            const waiter = await getWaiterByUsernameQuery(username);
-            resolve(waiter);
-
-        });
+        );
     });
-}
+};

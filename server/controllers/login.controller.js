@@ -1,21 +1,21 @@
-const { getWaiterByUsernameQuery } = require("../repository/waiter.repository");
+const { getuserByUsernameQuery } = require("../repository/user.repository");
 const passport = require("passport");
 const jwt = require('jsonwebtoken');
 const auth = require('../passport/auth');
-const getWaiterByUsername = async (req, res) => {
+const getuserByUsername = async (req, res) => {
   try {
-    const username = req.body.username;
+    const {username, password} = req.body;
 
-    const waiter = await getWaiterByUsernameQuery(username);
+    const user = await getuserByUsernameQuery(username);
 
-    console.log('Metoda getWaiterByID');
+    console.log('Metoda getuserByID');
 
 
-    if (waiter) {
+    if (user?.Password === password) {
 
-      console.log(waiter);
+      console.log(user);
       jwt.sign(
-          { username: waiter.Username },
+          { username: user.Username },
           process.env.SECRET,
           { algorithm:'HS256',
                     expiresIn: '1h'},
@@ -24,13 +24,13 @@ const getWaiterByUsername = async (req, res) => {
               throw err;
             }
             res.cookie('token', token);
-            res.status(200).json({ token });
+            res.status(200).json({ token, user });
           }
       );
 
 
     } else {
-      res.status(400).json({ message: "Waiter doesn't exist" });
+      res.status(400).json({ message: "user doesn't exist" });
     }
   } catch (err) {
     res.status(500).json({ message: 'Error on server side' });
@@ -49,16 +49,9 @@ const checkIfLogged = async (req, res, next) => {
     token = token.split(" ")[1];
     console.log(token);
     try {
-        const waiter = await auth(token);
+        const user = await auth(token);
 
-        // if (waiter.Username == username && waiter.Password == password) {
-        //     return res.status(200).json({});
-        //
-        // }
-        // else {
-        //     next();
-        // }
-        if (waiter){
+        if (user){
             return res.status(200).json({message: 'You are already logged in'});
         }
         else {
@@ -72,4 +65,4 @@ const checkIfLogged = async (req, res, next) => {
 
 };
 
-module.exports = { getWaiterByUsername, checkIfLogged };
+module.exports = { getuserByUsername, checkIfLogged };

@@ -3,6 +3,7 @@ const app = express();
 const { connectToDB } = require("./database/connect");
 const loginRouter = require('./routes/login.route');
 const cashRegisterRoute = require('./routes/cash.register.route');
+const authRouter = require('./routes/requestAuth');
 const passport = require('passport');
 const cors = require('cors');
 const cookie = require('cookie-parser');
@@ -15,7 +16,7 @@ connectToDB()
 
 
 
-app.use(cors());
+app.use(cors({ credentials: true }));
 app.use(cookie());
 app.use(express.urlencoded({extended: true} ));
 app.use(express.json());
@@ -24,6 +25,7 @@ app.use(passport.initialize());
 
 
 app.use('/', loginRouter);
+app.use('/auth',authRouter);
 app.use('/cash-register', cashRegisterRoute);
 
 

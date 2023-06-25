@@ -1,5 +1,4 @@
-const sql = require('mssql');
-const {connectToDB} = require('../../database/connect');
+const { connectToDB } = require('../../database/connect');
 
 async function getAlcoholDrinksQuery(){
     const pool = await connectToDB();

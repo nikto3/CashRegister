@@ -2,27 +2,49 @@ import React, {useEffect} from "react";
 import { useState } from "react";
 import {useCookies} from "react-cookie";
 import jwt_decode from "jwt-decode";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faUser, faLock} from "@fortawesome/free-solid-svg-icons";
+import { redirect, useNavigate, useLoaderData } from "react-router-dom";
+
+import {Container, Typography, TextField, Button, InputAdornment, Alert} from '@mui/material';
+import {AccountCircle, LockOutlined} from "@mui/icons-material";
+import Cookies from 'js-cookie';
+
+
+export async function loader({ request }) {
+    console.log('Pozvao sam homeLoader');
+
+    const res = await fetch('http://localhost:3000');
+    const data = await res.json();
+
+    console.log(data);
+
+    return new URL(request.url).searchParams.get("message");
+
+}
+
 
 export default function Home(){
 
     const [user, setUser] = useState({ username: '', password: '' });
-    const [cookies, setCookie, removeCookie] = useCookies(['token']);
-    const [isValid, setIsValid] = useState(() => isTokenValid(cookies.token));
+    // const [cookies, setCookie, removeCookie] = useCookies(['token']);
+    const [isValid, setIsValid] = useState(() => isTokenValid(Cookies.get('token')));
+    const [passwordError, setPasswordError] = useState("");
 
+    let message = useLoaderData();
+
+
+    const navigate = useNavigate();
 
     function getHeader(){
         return  isValid
             ? {
-                Authorization: `Bearer ${cookies.token}`,
+                Authorization: `Bearer ${Cookies.get('token')}`,
                 'Content-Type': 'application/json'
             }
             : {'Content-Type': 'application/json'}
     }
 
     useEffect(() => {
-        const token = cookies.token;
+        const token = Cookies.get('token');
 
         if (token && isTokenValid(token)){
             setIsValid(true);
@@ -30,19 +52,12 @@ export default function Home(){
         }
 
 
-        return () => setIsValid(false);
+        return () => {
+            setIsValid(false);
+        };
 
-    }, [cookies.token]);
+    }, [Cookies.get('token')]);
 
-    useEffect(() => {
-        fetch('http://localhost:3000/login'
-            ,{
-            headers: getHeader()
-            })
-            .then(res => res.json())
-            .then(data => console.log(data))
-            .catch(err => console.log(err));
-    }, []);
 
     function isTokenValid(token) {
         if (!token) {
@@ -57,6 +72,7 @@ export default function Home(){
     }
 
 
+
     function handleInputChange(event){
         setUser((prevUser) => {
             const { name, value } = event.target;
@@ -68,21 +84,21 @@ export default function Home(){
         });
     }
 
-    function getCashRegister(){
-        fetch('http://localhost:3000/cash-register',
-            {
-                headers: getHeader()
-            }).then(res => res.json())
-            .then(data => console.log(data))
-            .catch(err => console.log(err));
-    }
-
     function onSubmit(event){
         event.preventDefault();
+        message = "";
 
         if (!user.username || !user.password) return;
 
-        fetch('http://localhost:3000/login',
+        if (user.password.length < 8 || user.password.length > 20){
+            setPasswordError("Lozinka mora biti dužine između 8 i 20 karaktera");
+            return;
+        }
+        else if (passwordError){
+            setPasswordError("");
+        }
+
+        fetch('http://localhost:3000/',
             {
                 method: 'POST',
                 headers: getHeader(),
@@ -93,20 +109,25 @@ export default function Home(){
                     return res.json();
                 }
                 else {
-                    throw new Error('Not authorized.')
+                    throw new Error("User hasn't logged in");
                 }
             }).then(data => {
-                const {token} = data;
+                const { token, waiter } = data;
 
                 if (token) {
-                    setCookie('token', token, {path: '/', maxAge: 3600});
+                    Cookies.set('token', token, { path: '/' });
                 }
 
-                getCashRegister();
+            navigate("/cash-register", {
+                state: {
+                    waiter
+                }
+            });
 
         })
             .catch(err => {
-                console.log(err);
+                console.log("Greska." ,err);
+                navigate('/?message=Netacni kredencijali');
             })
         ;
 
@@ -115,53 +136,86 @@ export default function Home(){
     }
 
     return (
-        <div className="bg-white min-h-screen">
-            <div className="flex items-center justify-center h-screen">
-                <div className="w-full max-w-lg">
-                    <form className="bg-blue-500 shadow-md rounded px-10 pt-14 pb-16 mb-4">
-                        <div className="w-full flex justify-center text-3xl pb-2 text-white"><h1>Cafe Bar Djir</h1></div>
-                        <div className="mb-4 py-2">
-                            <label className="block text-white text-sm font-bold mb-2" htmlFor="username">
-                                <FontAwesomeIcon icon={faUser} className="mr-2" />
-                                Korisničko ime
-                            </label>
-                            <input
-                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                id="username"
-                                name="username"
-                                placeholder="Korisničko ime"
-                                value={user.username}
-                                onChange={handleInputChange}
-                            />
-                        </div>
-                        <div className="mb-6 py-2">
-                            <label className="block text-white text-sm font-bold mb-2" htmlFor="password">
-                                <FontAwesomeIcon icon={faLock} className="mr-2" />
-                                Šifra
-                            </label>
-                            <input
-                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-                                id="password"
-                                type="password"
-                                name="password"
-                                placeholder="Šifra"
-                                value={user.password}
-                                onChange={handleInputChange}
-                            />
-                        </div>
-                        <div className=" flex items-center justify-center">
-                            <button
-                                className="bg-white w-full text-blue-500 font-bold py-2 px-4 rounded focus:shadow-outline transform transition-transform hover:-translate-y-0.5"
-                                onClick={onSubmit}
-                            >
-                                Uloguj se
-                            </button>
-
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+        <Container
+            style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100vh',
+            }}
+        >
+            <form
+                style={{
+                    width: "400px",
+                    height: "350px",
+                    padding: "16px",
+                    boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)",
+                    borderRadius: "7px",
+                    backgroundColor: "#fff",
+                    textAlign: "center",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                }}
+                onSubmit={onSubmit}
+            >
+                <Typography variant="h5" component="h1" gutterBottom>
+                    Forma
+                </Typography>
+                <TextField
+                    label="Korisničko ime"
+                    variant="outlined"
+                    name="username"
+                    fullWidth
+                    style={{ marginBottom: '16px' }}
+                InputProps={{
+                startAdornment: (
+                    <InputAdornment position="start">
+                        <AccountCircle />
+                    </InputAdornment>
+                )
+            }}
+                    value={user.username}
+                    onChange={handleInputChange}
+                />
+                <TextField
+                    label="Lozinka"
+                    type="password"
+                    variant="outlined"
+                    fullWidth
+                    name="password"
+                    style={{ marginBottom: '16px' }}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <LockOutlined/>
+                            </InputAdornment>
+                        )
+                    }}
+                    value={user.password}
+                    onChange={handleInputChange}
+                />
+                {passwordError && (
+                    <Alert severity="error" style={{ marginBottom: "16px" }}>
+                        {passwordError}
+                    </Alert>)}
+                {message && (
+                    <Alert severity="error" style={{marginBottom: '10px'}}>
+                        {message}
+                    </Alert>
+                )}
+                <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    style={{
+                        marginTop: '16px'}}
+                >
+                    Uloguj se
+                </Button>
+            </form>
+        </Container>
 
     );
 }

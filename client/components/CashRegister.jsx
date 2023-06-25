@@ -1,24 +1,79 @@
-import React, {useState, useEffect} from "react";
-import Bill from "./Bill.jsx";
-import hotDrinksData from "../data/hotDrinks.js";
-import alcoholDrinksData from "../data/alcoholDrinks.js";
-import juicesData from "../data/juices.js";
-import predjelaData from "../data/predjelo.js";
-import glavnaJelaData from "../data/glavnoJelo.js";
-import dezertiData from "../data/dezert.js";
-import HotDrinks from "./drinks/HotDrinks.jsx";
-import AlcoholDrinks from "./drinks/AlcoholDrinks.jsx";
-import Juices from "./drinks/Juices.jsx";
-import Predjela from "./food/Predjela.jsx";
-import GlavnaJela from "./food/GlavnaJela.jsx";
-import Dezerti from "./food/Dezerti.jsx";
+import React, { useState, useEffect } from "react";
+import {useNavigate, useLocation, redirect, useLoaderData} from "react-router-dom";
+import { useCookies } from "react-cookie";
+import Cookies from "js-cookie";
+import moment from "moment";
+import {
+    Container,
+    Typography,
+    Box,
+    AppBar,
+    Toolbar,
+    IconButton,
+    Button,
+    Tabs,
+    Tab,
+    CircularProgress,
+} from "@mui/material";
+import { TabPanel, TabContext } from "@mui/lab";
+import { ExitToApp, Print } from "@mui/icons-material";
 
-export default function CashRegister({waiter}){
+// Components for different sections
+import AlcoholDrinksSection from "./drinks/AlcoholDrinks";
+import HotDrinksSection from "./drinks/HotDrinks";
+import JuicesSection from "./drinks/Juices";
+import PredjeloSection from "./food/Predjela";
+import GlavnoJeloSection from "./food/GlavnaJela";
+import DezertSection from "./food/Dezerti";
 
-    const [currentDate, setCurrentDate] = useState(new Date().toLocaleDateString());
-    const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
+import MenuItem from "./MenuItem.jsx";
 
-    const [activeTab, setActiveTab] = useState('drinks');
+
+import Menu from "./Menu";
+import BillSection from "./Bill";
+// dummy data
+import hotDrinksData from "../data/hotDrinks";
+import alcoholDrinksData from "../data/alcoholDrinks";
+import juicesData from "../data/juices";
+import predjelaData from "../data/predjelo";
+import glavnaJelaData from "../data/glavnoJelo";
+import dezertiData from "../data/dezert";
+
+export async function loader({ request }) {
+    try {
+        const cookie = Cookies.get('token');
+        const res = await fetch('http://localhost:3000/auth',{
+            headers: {
+                Authorization: `Bearer ${cookie}`
+            }
+        });
+
+        if (res.ok) {
+            return null;
+        }
+        // dodati poruku u query
+        return redirect('/?message=Morate biti ulogovani');
+    } catch (e) {
+        console.log(e);
+        // dodati poruku u query
+        return redirect('/?message=Morate biti ulogovani');
+    }
+}
+
+
+
+export default function CashRegister() {
+    // const [cookies, setCookie, removeCookie] = useCookies(["token"]);
+    const location = useLocation();
+    const data = useLoaderData();
+
+    const [selectedTab, setSelectedTab] = useState("drinks");
+    const [drinkType, setDrinkType] = useState("alcohol");
+    const [foodType, setFoodType] = useState("predjelo");
+    const [waiter, setWaiter] = useState(location.state.waiter);
+    const [currentDateTime, setCurrentDateTime] = useState("");
+
+    const [billItems, setBillItems] = useState([]);
 
     const [hotDrinks, setHotDrinks] = useState(hotDrinksData);
     const [alcoholDrinks, setAlcoholDrinks] = useState(alcoholDrinksData);
@@ -27,162 +82,191 @@ export default function CashRegister({waiter}){
     const [glavnaJela, setGlavnaJela] = useState(glavnaJelaData);
     const [dezerti, setDezerti] = useState(dezertiData);
 
-    const [activeCategory, setActiveCategory] = useState("hot");
+    const navigate = useNavigate();
 
-    const handleCategoryClick = (category) => {
-        setActiveCategory(category);
+
+
+    function onSelectItem(item) {
+        const selectedBillItem = billItems.find((billItem) => billItem.id === item.id);
+
+        if (selectedBillItem) {
+            // Item already exists in the bill, increment quantity
+            setBillItems((prevBillItems) => {
+                return prevBillItems.map((billItem) => {
+                    if (billItem.id === item.id) {
+                        return { ...billItem, quantity: billItem.quantity + 1 };
+                    }
+                    return billItem;
+                });
+            });
+        } else {
+            // Item doesn't exist in the bill, add it with quantity 1
+            const newBillItem = { ...item, quantity: 1 };
+            setBillItems((prevBillItems) => [...prevBillItems, newBillItem]);
+        }
+    }
+
+    function onDeleteItem(itemID){
+        const itemToDelete = billItems.find(item => item.id === itemID);
+
+        if (itemToDelete.quantity === 1){
+            setBillItems(prevBillItems => {
+                return billItems.filter(item => item.id !== itemID);
+            })
+        }
+
+        else {
+            setBillItems(prevBillItems => {
+                return prevBillItems.map(billItem => {
+                        if (billItem.id === itemID){
+                            return {...billItem, quantity: billItem.quantity-1};
+                        }
+                        return billItem;
+                }) ;
+            });
+        }
+    }
+
+    const handleTabChange = (event, newValue) => {
+        setSelectedTab(newValue);
     };
 
-    const renderDrinks = () => {
-        switch (activeCategory) {
-            case "hot":
-                return <HotDrinks drinks={hotDrinks} />;
-            case "alcohol":
-                return <AlcoholDrinks drinks={alcoholDrinks}/>;
-            case "juices":
-                return <Juices drinks={juices}/>;
-            default:
-                return null;
-        }
+    const handleDrinkTypeChange = (event, newValue) => {
+        setDrinkType(newValue);
     };
 
-    const renderFood = () => {
-        switch(activeCategory){
-            case "predjelo":
-                return <Predjela foodArr={predjela}/>;
-            case "glavnoJelo":
-                return <GlavnaJela foodArr={glavnaJela} />;
-            case "dezerti":
-                return <Dezerti foodArr={dezerti}/>;
-            default:
-                return null;
-        }
+    const handleFoodTypeChange = (event, newValue) => {
+        setFoodType(newValue);
     };
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentTime(new Date().toLocaleTimeString());
+        const timer = setInterval(() => {
+            const now = moment();
+            setCurrentDateTime(now.format("D/MM/YYYY HH:mm:ss"));
         }, 1000);
-
-        return () => {
-            clearInterval(interval);
-        };
+        return () => clearInterval(timer);
     }, []);
 
-    function handleTabClick(tab){
-        setActiveTab(tab);
-    }
+    const handleLogout = () => {
+        Cookies.remove('token');
+        console.log('Logging out...');
+        navigate('/');
+    };
+
+    const handlePrintBill = () => {
+        // Implement your logic for printing the bill
+        console.log("Printing the bill...");
+    };
 
     return (
-        <div className="h-screen bg-gray-200">
-            {/* Header */}
-            <header className="bg-blue-500 text-white py-4 px-8">
-                <h1 className="text-4xl font-bold">Kasa</h1>
-                {waiter && <p className="text-lg">
-                    Konobar: <span className="font-semibold">{waiter.name}</span>
-                </p>}
-                <p className="text-lg">
-                    Datum: <span className="font-semibold">{currentDate}</span>
-                </p>
-                <p className="text-lg">
-                    Vrijeme: <span className="font-semibold">{currentTime}</span>
-                </p>
-            </header>
+        <div style={{ height: "100vh" }}>
+                <div style={{ height: "100%" }}>
+                    <AppBar position="static" color='default'>
+                        <Toolbar>
+                            <Box sx={{ flexGrow: 1, marginTop:'5px' }}>
+                                <Typography variant="h6" component="div">
+                                    Kasa
+                                </Typography>
+                                <Typography variant="subtitle1" component="div">
+                                    Konobar: {waiter.Ime}
+                                </Typography>
+                                <Typography variant="subtitle1" component="div">
+                                    Datum i vrijeme: {currentDateTime}
+                                </Typography>
+                            </Box>
+                            <Button color="inherit" onClick={handleLogout}>
+                                Izađi
+                            </Button>
+                        </Toolbar>
+                    </AppBar>
 
-            {/* Main Content */}
-            <div className="flex-grow p-6">
-                <div className="grid grid-cols-3 gap-4">
-                    {/* Tabs */}
-                    <div className="col-span-2 bg-white shadow-md rounded-md p-6">
-                        <div className="flex mb-4">
-                            <button
-                                className={`px-4 py-2 mr-2 ${
-                                    activeTab === 'drinks' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-800'
-                                } rounded-md`}
-                                onClick={() => handleTabClick('drinks')}
-                            >
-                                Pice
-                            </button>
-                            <button
-                                className={`px-4 py-2 ${
-                                    activeTab === 'food' ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-800'
-                                } rounded-md`}
-                                onClick={() => handleTabClick('food')}
-                            >
-                                Hrana
-                            </button>
-                        </div>
+                    <Box sx={{ display: "flex", height: "calc(100% - 64px)" }}>
+                        <Box sx={{ flexGrow: 1 }}>
+                            <Box sx={{ mt: 2 }}>
+                                <Tabs value={selectedTab} onChange={handleTabChange} centered>
+                                    <Tab label="Piće" value="drinks" />
+                                    <Tab label="Hrana" value="food" />
+                                </Tabs>
 
+                                {selectedTab === "drinks" && (
+                                    <TabContext value={drinkType}>
+                                        <Box sx={{ mt: 2 }}>
+                                            <Tabs
+                                                value={drinkType}
+                                                onChange={handleDrinkTypeChange}
+                                                centered
+                                            >
+                                                <Tab label="Alkoholna Pića" value="alcohol" />
+                                                <Tab label="Topli napici" value="hot" />
+                                                <Tab label="Sokovi" value="juices" />
+                                            </Tabs>
+                                        </Box>
 
-                        {activeTab === 'drinks'
-                        ?
+                                        <TabPanel value="alcohol" index="alcohol">
+                                            <Menu items={alcoholDrinks} onSelectItemFunc={onSelectItem} />
+                                            {/*<AlcoholDrinksSection items={alcoholDrinks} />*/}
+                                        </TabPanel>
+                                        <TabPanel value="hot" index="hot">
+                                            <Menu items={hotDrinks} onSelectItemFunc={onSelectItem} />
+                                            {/*<HotDrinksSection items={hotDrinks} />*/}
+                                        </TabPanel>
+                                        <TabPanel value="juices" index="juices">
+                                            <Menu items={juices} onSelectItemFunc={onSelectItem} />
+                                            {/*<JuicesSection items={juices} />*/}
+                                        </TabPanel>
+                                    </TabContext>
+                                )}
 
-                            (<div>
-                                <div>
-                                <button
-                                    onClick={() => handleCategoryClick("hot")}
-                                    className={`m-2 ${
-                                        activeCategory === "hot" ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-800"
-                                    } px-4 py-2 rounded-md`}
-                                >
-                                    Hot Drinks
-                                </button>
-                                <button
-                                    onClick={() => handleCategoryClick("alcohol")}
-                                    className={`m-2 ${
-                                        activeCategory === "alcohol" ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-800"
-                                    } px-4 py-2 rounded-md`}
-                                >
-                                    Alcohol Drinks
-                                </button>
-                                <button
-                                    onClick={() => handleCategoryClick("juices")}
-                                    className={`m-2 ${
-                                        activeCategory === "juices" ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-800"
-                                    } px-4 py-2 rounded-md`}
-                                >
-                                    Juices
-                                </button>
-                            </div>
-                            <div>{renderDrinks()}</div>
-                        </div>) :
+                                {selectedTab === "food" && (
+                                    <TabContext value={foodType}>
+                                        <Box sx={{ mt: 2 }}>
+                                            <Tabs
+                                                value={foodType}
+                                                onChange={handleFoodTypeChange}
+                                                centered
+                                            >
+                                                <Tab label="Predjelo" value="predjelo" />
+                                                <Tab label="Glavno Jelo" value="glavnoJelo" />
+                                                <Tab label="Dezert" value="dezert" />
+                                            </Tabs>
+                                        </Box>
 
-                            (<div>
-                                <div>
-                                    <button
-                                        onClick={() => handleCategoryClick("predjelo")}
-                                        className={`m-2 ${
-                                            activeCategory === "predjelo" ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-800"
-                                        } px-4 py-2 rounded-md`}
-                                    >
-                                        Predjela
-                                    </button>
-                                    <button
-                                        onClick={() => handleCategoryClick("glavnoJelo")}
-                                        className={`m-2 ${
-                                            activeCategory === "glavnoJelo" ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-800"
-                                        } px-4 py-2 rounded-md`}
-                                    >
-                                        Glavna jela
-                                    </button>
-                                    <button
-                                        onClick={() => handleCategoryClick("dezerti")}
-                                        className={`m-2 ${
-                                            activeCategory === "dezerti" ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-800"
-                                        } px-4 py-2 rounded-md`}
-                                    >
-                                        Dezerti
-                                    </button>
-                                </div>
-                                <div>{renderFood()}</div>
-                            </div>)}
-
-                    </div>
-
-                    {/* Bill Component */}
-                    <Bill />
+                                        <TabPanel value="predjelo" index="predjelo">
+                                            <Menu items={predjela} onSelectItemFunc={onSelectItem} />
+                                            {/*<PredjeloSection items={predjela}/>*/}
+                                        </TabPanel>
+                                        <TabPanel value="glavnoJelo" index="glavnoJelo">
+                                            <Menu items={glavnaJela} onSelectItemFunc={onSelectItem} />
+                                            {/*<GlavnoJeloSection items={glavnaJela} />*/}
+                                        </TabPanel>
+                                        <TabPanel value="dezert" index="dezert">
+                                            <Menu items={dezerti} onSelectItemFunc={onSelectItem} />
+                                            {/*<DezertSection items={dezerti}/>*/}
+                                        </TabPanel>
+                                    </TabContext>
+                                )}
+                            </Box>
+                        </Box>
+                        <Box
+                            sx={{
+                                ml: 4,
+                                flexShrink: 0,
+                                minWidth: 500,
+                                width: "30%",
+                            }}
+                        >
+                            <Box sx={{ mt: 2 }}>
+                                {/* Render the bill section here */}
+                                <Box sx={{ height: "100%", overflowY: "auto" }}>
+                                    <BillSection
+                                    items={billItems}
+                                    onDeleteItem={onDeleteItem}/>
+                                </Box>
+                            </Box>
+                        </Box>
+                    </Box>
                 </div>
-            </div>
+            {/*)}*/}
         </div>
     );
 }

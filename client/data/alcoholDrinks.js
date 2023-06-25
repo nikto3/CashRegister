@@ -38,5 +38,10 @@ export default [
         ID: 16,
         Naziv: 'Alcohol Drink 8',
         Cijena: 4.2
+    },
+    {
+        ID: 17,
+        Naziv: 'Alcohol Drink 9',
+        Cijena: 4.3
     }
 ];

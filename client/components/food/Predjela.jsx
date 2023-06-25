@@ -1,18 +1,18 @@
-import React from "react";
-import Item from "../Item.jsx";
+import React, { useState, useEffect } from "react";
+import {CircularProgress, Box, Typography, Grid} from "@mui/material";
+import MenuItem from "../MenuItem.jsx";
 
-export default function Predjela({ foodArr }){
+export default function Predjela({ items }) {
+    const [isLoading, setIsLoading] = useState(true);
+    const [drinks, setDrinks] = useState([]);
+
     return (
-        <div className="p-4 border rounded-md shadow-md">
-            <h2 className="text-xl font-semibold"
-                style={{margin: '1rem'}}>
-                Predjela
-            </h2>
-            <div className="grid grid-cols-3 ">
-                {foodArr.map((food) => (
-                    <Item key={food.ID} id={food.ID} name={food.Naziv} price={food.Cijena} />
-                ))}
-            </div>
-        </div>
+        <Grid container spacing={3}>
+            {items.map((item) => (
+                <Grid item xs={6} sm={4} md={3} key={item.ID}>
+                    <MenuItem id={item.ID} name={item.Naziv} price={item.Cijena} />
+                </Grid>
+            ))}
+        </Grid>
     );
 }

@@ -1,21 +1,18 @@
-import Item from "../Item.jsx";
+import React, { useState, useEffect } from "react";
+import {CircularProgress, Box, Typography, Grid} from "@mui/material";
+import MenuItem from "../MenuItem.jsx";
 
-export default function HotDrinks({ drinks }){
-
-    //const [hotDrinks, setHotDrinks] = useState(drinks);
-
+export default function HotDrinksSection({ items }) {
+    const [isLoading, setIsLoading] = useState(true);
+    const [drinks, setDrinks] = useState([]);
 
     return (
-        <div className="p-4 border rounded-md shadow-md" >
-            <h2 className="text-xl font-semibold"
-            style={{margin: '1rem'}}>
-                Hot Drinks
-            </h2>
-            <div className="grid grid-cols-3 gap-4">
-                {drinks.map((drink) => (
-                    <Item key={drink.ID} id={drink.ID} name={drink.Naziv} price={drink.Cijena} />
-                ))}
-            </div>
-        </div>
+        <Grid container spacing={3}>
+            {items.map((item) => (
+                <Grid item xs={6} sm={4} md={3} key={item.ID}>
+                    <MenuItem id={item.ID} name={item.Naziv} price={item.Cijena} />
+                </Grid>
+            ))}
+        </Grid>
     );
 }

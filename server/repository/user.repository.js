@@ -1,7 +1,7 @@
 const sql = require("mssql");
 const { connectToDB } = require("../database/connect");
 
-async function getWaiterByUsernameQuery(username) {
+async function getuserByUsernameQuery(username) {
   try {
     const pool = await connectToDB();
 
@@ -14,4 +14,4 @@ async function getWaiterByUsernameQuery(username) {
   }
 }
 
-module.exports = { getWaiterByUsernameQuery };
+module.exports = { getuserByUsernameQuery };

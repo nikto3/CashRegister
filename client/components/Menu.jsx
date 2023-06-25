@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import {CircularProgress, Box, Typography, Grid} from "@mui/material";
-import MenuItem from "../MenuItem.jsx";
+import MenuItem from "./MenuItem.jsx";
 
-export default function GlavnaJela({ items }) {
+export default function Menu({ items, onSelectItemFunc }) {
     const [isLoading, setIsLoading] = useState(true);
     const [drinks, setDrinks] = useState([]);
 
@@ -10,7 +10,12 @@ export default function GlavnaJela({ items }) {
         <Grid container spacing={3}>
             {items.map((item) => (
                 <Grid item xs={6} sm={4} md={3} key={item.ID}>
-                    <MenuItem id={item.ID} name={item.Naziv} price={item.Cijena} />
+                    <MenuItem
+                        id={item.ID}
+                        name={item.Naziv}
+                        price={item.Cijena}
+                        onSelectItem={onSelectItemFunc}
+                        />
                 </Grid>
             ))}
         </Grid>

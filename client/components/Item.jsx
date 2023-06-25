@@ -1,20 +1,37 @@
 import React from "react";
+import { Typography, Box, IconButton, Tooltip, Button } from "@mui/material";
+import { Delete, Print } from "@mui/icons-material";
 
-
-export default function Item({id, name, price}){
-
-    function handleClick(ID){
-        console.log(`Clicked button with ID ${ID}`);
-    }
+export default function Item({ id, quantity, name, price, onDelete }) {
+    const handleDelete = () => {
+        onDelete(id);
+    };
 
     return (
-        <div
-            className="col-span-1 flex flex-col items-center bg-white rounded-md shadow"
-            style={{ padding: '1rem', margin: '1rem' }}
-            onClick={() => handleClick(id)}
+        <Box
+            sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                mb: 1,
+                "&:hover .delete-icon": {
+                    display: "block",
+                },
+            }}
         >
-            <span className="font-semibold">{name}</span>
-            <span className="text-gray-600">{price}</span>
-        </div>
+            <Typography>{`${quantity} x ${name}`}</Typography>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+                {price && <Typography>{`€${price.toFixed(2)}`}</Typography>}
+                <Tooltip title="Delete" arrow>
+                    <IconButton
+                        className="delete-icon"
+                        onClick={() => onDelete(id)}
+                        sx={{ display: "none" }}
+                    >
+                        <Delete />
+                    </IconButton>
+                </Tooltip>
+            </Box>
+        </Box>
     );
 }
