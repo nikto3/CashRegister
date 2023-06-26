@@ -18,6 +18,9 @@ async function getAlcoholDrinks(req, res){
         if (alcoholDrinks){
             res.status(200).json(alcoholDrinks);
         }
+        else {
+            res.status(404).json({ message: 'Alcohol drinks not found' })
+        }
     }
     catch (err){
         console.log(err);
@@ -32,6 +35,9 @@ async function getHotDrinks(req, res){
 
         if (hotDrinks){
             res.status(200).json(hotDrinks);
+        }
+        else {
+            res.status(404).json({ message: 'Hot drinks not found' })
         }
     }
     catch (err){
@@ -48,6 +54,9 @@ async function getJuices(req, res){
         if (juices){
             res.status(200).json(juices);
         }
+        else {
+            res.status(404).json({ message: 'Juices not found' })
+        }
     }
     catch (err){
         console.log(err);
@@ -62,6 +71,9 @@ async function getAppetizers(req, res){
 
         if (appetizers){
             res.status(200).json(appetizers);
+        }
+        else {
+            res.status(404).json({ message: 'Appetizers not found' })
         }
     }
     catch (err){
@@ -78,6 +90,9 @@ async function getMainCourses(req, res){
         if (mainCourses){
             res.status(200).json(mainCourses);
         }
+        else {
+            res.status(404).json({ message: 'Main courses not found' })
+        }
     }
     catch (err){
         console.log(err);
@@ -92,6 +107,9 @@ async function getDesserts(req, res){
 
         if (desserts){
             res.status(200).json(desserts);
+        }
+        else {
+            res.status(404).json({ message: 'Desserts not found' })
         }
     }
     catch (err){

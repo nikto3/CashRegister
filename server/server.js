@@ -4,6 +4,9 @@ const { connectToDB } = require("./database/connect");
 const loginRouter = require('./routes/login.route');
 const cashRegisterRoute = require('./routes/cash.register.route');
 const authRouter = require('./routes/requestAuth');
+const drinksRouter = require('./routes/drinks.route');
+const foodRouter = require('./routes/food.route');
+const waitersRouter = require('./routes/waiters.route');
 const passport = require('passport');
 const cors = require('cors');
 const cookie = require('cookie-parser');
@@ -27,6 +30,9 @@ app.use(passport.initialize());
 app.use('/', loginRouter);
 app.use('/auth',authRouter);
 app.use('/cash-register', cashRegisterRoute);
+app.use('/drinks', drinksRouter);
+app.use('/food', foodRouter);
+app.use('/waiters', waitersRouter);
 
 
 app.listen(process.env.PORT, () =>

@@ -12,6 +12,14 @@ export default function Bill({ items, onDeleteItem }) {
         });
         return sum.toFixed(2);
     };
+    /*sx={{
+                        color: 'black',
+                        borderColor: 'black',
+                        '&:hover': {
+                            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
+                            borderColor: 'black'
+                        }
+                    }}*/
 
     const handlePrintBill = () => {
         // Implement your logic for printing the bill
@@ -25,9 +33,9 @@ export default function Bill({ items, onDeleteItem }) {
                 backgroundColor: "white",
                 boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
                 borderRadius: "4px",
+                borderColor: 'primary.main',
                 p: 3,
                 border: "2px solid",
-                borderColor: "primary.main",
                 height: "100%",
                 display: "flex",
                 flexDirection: "column",
@@ -78,11 +86,15 @@ export default function Bill({ items, onDeleteItem }) {
 
             <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                 <Button
-                    variant="contained"
-                    color="primary"
+                    variant="outlined"
+
                     startIcon={<Print />}
                     onClick={handlePrintBill}
-                    sx={{ "&:hover": { backgroundColor: "#1e88e5" } }}
+                    sx={{
+                        '&:hover': {
+                            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)'
+                        }
+                    }}
                 >
                     Štampaj
                 </Button>

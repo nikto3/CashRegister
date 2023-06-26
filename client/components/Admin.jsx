@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, redirect } from "react-router-dom";
+import { useNavigate, redirect, useLoaderData } from "react-router-dom";
 import {
     Container,
     Typography,
@@ -35,146 +35,108 @@ import {
 } from "@mui/icons-material";
 import Cookies from "js-cookie";
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
+import moment from "moment";
 
-// dummy data
-import hotDrinksData from "../data/hotDrinks";
-import alcoholDrinksData from "../data/alcoholDrinks";
-import juicessData from "../data/juices";
-import predjelaData from "../data/predjelo";
-import glavnaJelaData from "../data/glavnoJelo";
-import dezertiData from "../data/dezert";
 
-import waitersData from "../data/waiters"
 import ProductsDialog from "./ProductsDialog.jsx";
 import WaitersDialog from "./WaitersDialog.jsx";
 import WaitersHeading from './WaitersHeading';
 import WaitersTable from "./WaitersTable.jsx";
 import ProductsHeading from "./ProductsHeading.jsx";
 import ProductsTable from "./ProductsTable.jsx";
+import {getAlcoholDrinks} from "../api/getAlcoholDrinks.js";
+import {getHotDrinks} from "../api/getHotDrinks.js";
+import {getJuices} from "../api/getJuices.js";
+import {getAppetizers} from "../api/getAppetizers.js";
+import {getMainCourses} from "../api/getMainCourses.js";
+import {getDesserts} from "../api/getDesserts.js";
+import {getWaiters} from "../api/getWaiters.js";
 
-export async function loader({ request }){
+export async function loader({ request }) {
+    console.log('Pozvao sam adminLoader');
     try {
         const cookie = Cookies.get('token');
-        const res = fetch('http://localhost:3000/admin',{
+        const res = await fetch('http://localhost:3000/auth',{
             headers: {
                 Authorization: `Bearer ${cookie}`
             }
         });
 
+        if (res.ok) {
+            // return null;
+            console.log('res.ok');
+            const alcohol = await getAlcoholDrinks(cookie);
+            const hot = await getHotDrinks(cookie);
+            const juices = await getJuices(cookie);
+            const appetizers = await getAppetizers(cookie);
+            const mainCourses = await getMainCourses(cookie);
+            const desserts = await getDesserts(cookie);
+            const waiters = await getWaiters(cookie);
 
-        if (!res.ok){
-            return redirect('/?message=Nemate prava pristupa admin ruti');
+            return {
+                alcohol,
+                hot,
+                juices,
+                appetizers,
+                mainCourses,
+                desserts,
+                waiters
+            }
+
         }
-
-        /*
-        * admin je identifikovan
-        * saljem zahtjeve za podatke
-        */
-
-        const alcohol = fetch('http://localhost:3000/drinks/alcohol',{
-            headers: {
-                Authorization: `Bearer ${cookie}`
-            }
-        });
-        const hot = fetch('http://localhost:3000/drinks/hot',{
-            headers: {
-                Authorization: `Bearer ${cookie}`
-            }
-        });
-        const juices = fetch('http://localhost:3000/drinks/juices',{
-            headers: {
-                Authorization: `Bearer ${cookie}`
-            }
-        });
-
-        const appetizers = fetch('http://localhost:3000/food/appetizers',{
-            headers: {
-                Authorization: `Bearer ${cookie}`
-            }
-        });
-
-        const mainCourses = fetch('http://localhost:3000/food/mainCourses',{
-            headers: {
-                Authorization: `Bearer ${cookie}`
-            }
-        });
-
-
-        const desserts = fetch('http://localhost:3000/food/desserts',{
-            headers: {
-                Authorization: `Bearer ${cookie}`
-            }
-        });
-
-        return {
-            alcohol: alcohol,
-            hot: hot,
-            juices: juices,
-            appetizers: appetizers,
-            mainCourses: mainCourses,
-            desserts: desserts
-        };
-
-    }
-    catch (e) {
-        console.log('Error:', e);
-        return redirect('/');
+        // dodati poruku u query
+        return redirect('/?message=Morate biti ulogovani');
+    } catch (e) {
+        console.log(e);
+        // dodati poruku u query
+        return redirect('/?message=Morate biti ulogovani');
     }
 }
 
 
 export default function Admin() {
-    const [products, setProducts] = useState([]);
     const [selectedProduct, setSelectedProduct] = useState('pice');
     const [selectedWaiter, setSelectedWaiter] = useState(null);
     const [openProductsDialog, setOpenProductsDialog] = useState(false);
     const [openWaitersDialog, setOpenWaitersDialog] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
-    const [adminName, setAdminName] = useState("");
+    const [adminName, setAdminName] = useState("Admin1");
     const [currentTime, setCurrentTime] = useState("");
-    const [waiters, setWaiters] = useState(waitersData);
 
-    const [filteredProducts, setFilteredProducts] = useState([]);
-    const [filteredWaiters, setFilteredWaiters] = useState([]);
+    const data = useLoaderData();
 
-    const [hotDrinks, setHotDrinks] = useState(hotDrinksData);
-    const [alcoholDrinks, setAlcoholDrinks] = useState(alcoholDrinksData);
-    const [juices, setJuices] = useState(juicessData);
-    const [predjela, setPredjela] = useState(predjelaData);
-    const [glavnaJela, setGlavnaJela] = useState(glavnaJelaData);
-    const [dezerti, setDezerti] = useState(dezertiData);
+    const [hotDrinks, setHotDrinks] = useState(() => data.hot);
+    const [alcoholDrinks, setAlcoholDrinks] = useState(() => data.alcohol);
+    const [juices, setJuices] = useState(() => data.juices);
+    const [predjela, setPredjela] = useState(() => data.appetizers);
+    const [glavnaJela, setGlavnaJela] = useState(() => data.mainCourses);
+    const [dezerti, setDezerti] = useState(() => data.desserts);
+
+    const [waiters, setWaiters] = useState(() => data.waiters);
+
+
+    const [filteredWaiters, setFilteredWaiters] = useState(() => waiters);
+
+    const [products, setProducts] = useState(() => (
+        [
+            ...hotDrinks,
+            ...alcoholDrinks,
+            ...juices,
+            ...predjela,
+            ...glavnaJela,
+            ...dezerti,
+        ]
+    ));
+
+    const [filteredProducts, setFilteredProducts] = useState(products);
 
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Fetch products and waiters data
-        // fetchProducts();
-        // fetchWaiters();
-
-        // ovdje setujem podatke nakon sto ih dobijem iz loadera
-
-        setFilteredWaiters(waiters);
-        setProducts(() => {
-            return [
-                ...hotDrinks,
-                ...alcoholDrinks,
-                ...juices,
-                ...predjela,
-                ...glavnaJela,
-                ...dezerti,
-            ];
-        });
-
-        setFilteredProducts(products);
-
-        // Set admin name
-        setAdminName("Admin1");
-
-        // Set current time
-        setCurrentTime(new Date().toLocaleString());
         const timer = setInterval(() => {
-            setCurrentTime(new Date().toLocaleString());
+            const now = moment();
+            setCurrentTime(now.format('D/MM/YYYY HH:mm:ss'));
         }, 1000);
 
         return () => {
@@ -182,29 +144,6 @@ export default function Admin() {
         };
     }, []);
 
-    // const fetchProducts = () => {
-    //     // Fetch products data from the server
-    //     fetch("http://localhost:3000/products", {
-    //         headers: {
-    //             Authorization: `Bearer ${Cookies.get("token")}`,
-    //         },
-    //     })
-    //         .then((response) => response.json())
-    //         .then((data) => setProducts(data))
-    //         .catch((error) => console.error("Error fetching products:", error));
-    // };
-
-    // const fetchWaiters = () => {
-    //     // Fetch waiters data from the server
-    //     fetch("http://localhost:3000/waiters", {
-    //         headers: {
-    //             Authorization: `Bearer ${Cookies.get("token")}`,
-    //         },
-    //     })
-    //         .then((response) => response.json())
-    //         .then((data) => setWaiters(data))
-    //         .catch((error) => console.error("Error fetching waiters:", error));
-    // };
 
     const handleEditProduct = (product) => {
         setSelectedProduct(product);
@@ -265,7 +204,7 @@ export default function Admin() {
         })
             .then(() => {
                 setSuccessMessage("Product saved successfully.");
-                fetchProducts();
+                //fetchProducts();
             })
             .catch((error) => {
                 console.error("Error saving product:", error);
@@ -285,7 +224,7 @@ export default function Admin() {
         })
             .then(() => {
                 setSuccessMessage("Waiter saved successfully.");
-                fetchWaiters();
+                //fetchWaiters();
             })
             .catch((error) => {
                 console.error("Error saving waiter:", error);
@@ -335,16 +274,19 @@ export default function Admin() {
                         {currentTime}
                     </Typography>
 
-                    <IconButton
-                        aria-label="logout"
+                    <Button
                         onClick={handleLogout}
+                        startIcon={<LogoutOutlinedIcon />}
+                        sx={{
+                            color: 'black'
+                        }}
                     >
-                        <LogoutOutlinedIcon />
-                    </IconButton>
+                        IZAĐI
+                    </Button>
                 </Toolbar>
             </AppBar>
             <Grid container spacing={2} sx={{ mt: 2 }}>
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid item xs={12} sm={6} md={5}>
                     <Paper>
                         <WaitersHeading
                             onAddWaiter={() => handleEditWaiter(null)}
@@ -357,7 +299,7 @@ export default function Admin() {
                         />
                     </Paper>
                 </Grid>
-                <Grid item xs={12} sm={6} md={8}>
+                <Grid item xs={12} sm={6} md={7}>
                     <Paper>
                         <ProductsHeading
                             onSearch={handleProductSearch}

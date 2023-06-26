@@ -30,6 +30,9 @@ const WaitersTable = ({ waiters, onEdit, onDelete }) => {
                             <Typography variant="h7" sx={{ fontWeight: 'bold' }}>Sifra</Typography>
                         </TableCell>
                         <TableCell>
+                            <Typography variant="h7" sx={{ fontWeight: 'bold' }}>Uloga</Typography>
+                        </TableCell>
+                        <TableCell>
                             <Typography variant="h7" sx={{ fontWeight: 'bold' }}>Radnja</Typography>
                         </TableCell>
                     </TableRow>

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const passport = require('../passport/passport');
+const { requestAuth } = require('../controllers/auth.controller');
 const { getAlcoholDrinks,
         getHotDrinks,
         getJuices,
@@ -13,11 +13,7 @@ router.get('/',
         console.log('Stigao zahtjev na /cash-register rutu');
         next();
     },
-    passport.authenticate('jwt', {session: false, failureRedirect: '/'}),
-    //getAlcoholDrinks
-    (req, res) => {
-    res.status(200).json({message: 'Welcome to cash-register route'})
-    }
+    requestAuth
 );
 
 

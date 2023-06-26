@@ -1,12 +1,12 @@
-const { getuserByUsernameQuery } = require("../repository/user.repository");
+const { getUserByUsernameQuery } = require("../repository/user.repository");
 const passport = require("passport");
 const jwt = require('jsonwebtoken');
 const auth = require('../passport/auth');
-const getuserByUsername = async (req, res) => {
+const getUserByUsername = async (req, res) => {
   try {
     const {username, password} = req.body;
 
-    const user = await getuserByUsernameQuery(username);
+    const user = await getUserByUsernameQuery(username);
 
     console.log('Metoda getuserByID');
 
@@ -52,7 +52,7 @@ const checkIfLogged = async (req, res, next) => {
         const user = await auth(token);
 
         if (user){
-            return res.status(200).json({message: 'You are already logged in'});
+            return res.status(200).json({message: 'You are already logged in'}, user);
         }
         else {
             next();
@@ -65,4 +65,4 @@ const checkIfLogged = async (req, res, next) => {
 
 };
 
-module.exports = { getuserByUsername, checkIfLogged };
+module.exports = { getUserByUsername, checkIfLogged };

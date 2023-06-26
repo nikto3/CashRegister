@@ -12,12 +12,17 @@ import Cookies from 'js-cookie';
 export async function loader({ request }) {
     console.log('Pozvao sam homeLoader');
 
-    const res = await fetch('http://localhost:3000');
-    const data = await res.json();
+    try {
+        // const res = await fetch('http://localhost:3000/');
+        // const data = await res.json();
+        //
+        // console.log(data);
 
-    console.log(data);
-
-    return new URL(request.url).searchParams.get("message");
+        return new URL(request.url).searchParams.get("message");
+    }
+    catch (e) {
+        return null;
+    }
 
 }
 
@@ -25,13 +30,12 @@ export async function loader({ request }) {
 export default function Home(){
 
     const [user, setUser] = useState({ username: '', password: '' });
-    // const [cookies, setCookie, removeCookie] = useCookies(['token']);
     const [isValid, setIsValid] = useState(() => isTokenValid(Cookies.get('token')));
     const [passwordError, setPasswordError] = useState("");
 
     let message = useLoaderData();
 
-
+    console.log('Home component');
     const navigate = useNavigate();
 
     function getHeader(){
@@ -112,17 +116,26 @@ export default function Home(){
                     throw new Error("User hasn't logged in");
                 }
             }).then(data => {
-                const { token, waiter } = data;
+                const { token, user } = data;
 
                 if (token) {
                     Cookies.set('token', token, { path: '/' });
                 }
 
-            navigate("/cash-register", {
-                state: {
-                    waiter
-                }
-            });
+            if (user.Naziv_Uloge === 'Konobar'){
+                navigate("/cash-register", {
+                    state: {
+                        user
+                    }
+                });
+            }
+            else {
+                navigate("/admin", {
+                    state: {
+                        user
+                    }
+                });
+            }
 
         })
             .catch(err => {
@@ -206,8 +219,7 @@ export default function Home(){
                 )}
                 <Button
                     type="submit"
-                    variant="contained"
-                    color="primary"
+                    variant="outlined"
                     fullWidth
                     style={{
                         marginTop: '16px'}}

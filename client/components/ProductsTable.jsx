@@ -15,6 +15,12 @@ export default function ProductsTable({ products, handleEditProduct, handleDelet
                             <Typography variant="h7" sx={{ fontWeight: 'bold' }}>Cijena</Typography>
                         </TableCell>
                         <TableCell>
+                            <Typography variant="h7" sx={{ fontWeight: 'bold' }}>Kategorija</Typography>
+                        </TableCell>
+                        <TableCell>
+                            <Typography variant="h7" sx={{ fontWeight: 'bold' }}>Vrsta</Typography>
+                        </TableCell>
+                        <TableCell>
                             <Typography variant="h7" sx={{ fontWeight: 'bold' }}>Radnja</Typography>
                         </TableCell>
                     </TableRow>

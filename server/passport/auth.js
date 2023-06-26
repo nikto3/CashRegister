@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { getuserByUsernameQuery } = require("../repository/user.repository");
+const { getUserByUsernameQuery } = require("../repository/user.repository");
 
 module.exports = async function (token) {
     return new Promise((resolve, reject) => {
@@ -12,7 +12,7 @@ module.exports = async function (token) {
                     return reject(new Error("Token verification failed."));
                 }
                 const username = decoded.username;
-                const user = await getuserByUsernameQuery(username);
+                const user = await getUserByUsernameQuery(username);
                 resolve(user);
             }
         );

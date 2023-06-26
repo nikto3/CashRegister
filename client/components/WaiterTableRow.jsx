@@ -18,10 +18,8 @@ const WaiterTableRow = ({ waiter, onEdit, onDelete, isEvenRow }) => {
             <TableCell>{waiter.Prezime}</TableCell>
             <TableCell>{waiter.Username}</TableCell>
             <TableCell>{waiter.Password}</TableCell>
+            <TableCell>{waiter.Naziv_Uloge}</TableCell>
             <TableCell>
-                {/*<IconButton color="default" onClick={handleEdit}>*/}
-                {/*    <EditIcon />*/}
-                {/*</IconButton>*/}
                 <IconButton color="default" onClick={handleDelete}>
                     <DeleteIcon />
                 </IconButton>

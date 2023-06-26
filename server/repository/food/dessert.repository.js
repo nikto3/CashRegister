@@ -6,10 +6,9 @@ async function getDessertsQuery(){
     const res = await pool
         .request()
         .query
-        `   SELECT p.ID, v.Naziv, p.Cijena
-            FROM Proizvod p JOIN Kategorija k ON p.Naziv_Kat=k.Naziv
-            JOIN Vrsta v ON k.Naziv=v.Naziv_Kat
-            WHERE k.Naziv='Hrana' AND v.Tip='Dezert'
+        `   SELECT ID, P.Naziv, Cijena, Naziv_Vrste, Naziv_Kat
+            FROM Proizvod P JOIN Vrsta V on P.Naziv_Vrste = V.Naziv
+            WHERE P.Naziv_Vrste='Dezert'
         `;
 
     return res ? res.recordset : null;

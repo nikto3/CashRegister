@@ -77,22 +77,22 @@ const ProductsHeading = ({ onAddProduct, onSearch }) => {
                                 <em>Prazno</em>
                             </MenuItem>
                             <MenuItem value='alkohol'>
-                                Alkoholna pica
+                                Alkoholno pice
                             </MenuItem>
                             <MenuItem value='toplo'>
-                                Topli napici
+                                Topli napitak
                             </MenuItem>
                             <MenuItem value='sok'>
-                                Sokovi
+                                Sok
                             </MenuItem>
                             <MenuItem value='predjelo'>
-                                Predjela
+                                Predjelo
                             </MenuItem>
                             <MenuItem value='glavno jelo'>
-                                Glavna jela
+                                Glavno jelo
                             </MenuItem>
                             <MenuItem value='dezert'>
-                                Dezerti
+                                Dezert
                             </MenuItem>
                         </Select>
                     </FormControl>

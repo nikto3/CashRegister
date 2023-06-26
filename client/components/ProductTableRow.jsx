@@ -6,6 +6,8 @@ const ProductTableRow = ({ product, handleEditProduct, handleDeleteProduct, isEv
     <TableRow key={product.ID} sx={{ backgroundColor: isEvenRow ? '#f5f5f5' : 'inherit'}}>
         <TableCell>{product.Naziv}</TableCell>
         <TableCell>{product.Cijena}</TableCell>
+        <TableCell>{product.Naziv_Kat}</TableCell>
+        <TableCell>{product.Naziv_Vrste}</TableCell>
         <TableCell>
             <IconButton onClick={() => handleEditProduct(product)}>
                 <Edit />

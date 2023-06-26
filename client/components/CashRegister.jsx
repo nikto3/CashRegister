@@ -13,33 +13,24 @@ import {
     Button,
     Tabs,
     Tab,
-    CircularProgress,
 } from "@mui/material";
 import { TabPanel, TabContext } from "@mui/lab";
 import { ExitToApp, Print } from "@mui/icons-material";
 
-// Components for different sections
-import AlcoholDrinksSection from "./drinks/AlcoholDrinks";
-import HotDrinksSection from "./drinks/HotDrinks";
-import JuicesSection from "./drinks/Juices";
-import PredjeloSection from "./food/Predjela";
-import GlavnoJeloSection from "./food/GlavnaJela";
-import DezertSection from "./food/Dezerti";
-
-import MenuItem from "./MenuItem.jsx";
 
 
 import Menu from "./Menu";
 import BillSection from "./Bill";
-// dummy data
-import hotDrinksData from "../data/hotDrinks";
-import alcoholDrinksData from "../data/alcoholDrinks";
-import juicesData from "../data/juices";
-import predjelaData from "../data/predjelo";
-import glavnaJelaData from "../data/glavnoJelo";
-import dezertiData from "../data/dezert";
+import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
+import {getAlcoholDrinks} from "../api/getAlcoholDrinks.js";
+import {getHotDrinks} from "../api/getHotDrinks.js";
+import {getJuices} from "../api/getJuices.js";
+import {getAppetizers} from "../api/getAppetizers.js";
+import {getMainCourses} from "../api/getMainCourses.js";
+import {getDesserts} from "../api/getDesserts.js";
 
 export async function loader({ request }) {
+    console.log('Pozvao sam cashRegisterLoader');
     try {
         const cookie = Cookies.get('token');
         const res = await fetch('http://localhost:3000/auth',{
@@ -49,7 +40,24 @@ export async function loader({ request }) {
         });
 
         if (res.ok) {
-            return null;
+            // return null;
+            console.log('res.ok');
+            const alcohol = await getAlcoholDrinks(cookie);
+            const hot = await getHotDrinks(cookie);
+            const juices = await getJuices(cookie);
+            const appetizers = await getAppetizers(cookie);
+            const mainCourses = await getMainCourses(cookie);
+            const desserts = await getDesserts(cookie);
+
+            return {
+                alcohol,
+                hot,
+                juices,
+                appetizers,
+                mainCourses,
+                desserts
+            }
+
         }
         // dodati poruku u query
         return redirect('/?message=Morate biti ulogovani');
@@ -63,24 +71,25 @@ export async function loader({ request }) {
 
 
 export default function CashRegister() {
-    // const [cookies, setCookie, removeCookie] = useCookies(["token"]);
     const location = useLocation();
-    const data = useLoaderData();
-
     const [selectedTab, setSelectedTab] = useState("drinks");
     const [drinkType, setDrinkType] = useState("alcohol");
     const [foodType, setFoodType] = useState("predjelo");
-    const [waiter, setWaiter] = useState(location.state.waiter);
+    const [waiter, setWaiter] = useState(location.state.user);
     const [currentDateTime, setCurrentDateTime] = useState("");
 
     const [billItems, setBillItems] = useState([]);
 
-    const [hotDrinks, setHotDrinks] = useState(hotDrinksData);
-    const [alcoholDrinks, setAlcoholDrinks] = useState(alcoholDrinksData);
-    const [juices, setJuices] = useState(juicesData);
-    const [predjela, setPredjela] = useState(predjelaData);
-    const [glavnaJela, setGlavnaJela] = useState(glavnaJelaData);
-    const [dezerti, setDezerti] = useState(dezertiData);
+    const data = useLoaderData();
+
+    // console.log('Cash-Register component');
+
+    const [hotDrinks, setHotDrinks] = useState(() => data.hot);
+    const [alcoholDrinks, setAlcoholDrinks] = useState(() => data.alcohol);
+    const [juices, setJuices] = useState(() => data.juices);
+    const [predjela, setPredjela] = useState(() => data.appetizers);
+    const [glavnaJela, setGlavnaJela] = useState(() => data.mainCourses);
+    const [dezerti, setDezerti] = useState(() => data.desserts);
 
     const navigate = useNavigate();
 
@@ -174,7 +183,7 @@ export default function CashRegister() {
                                     Datum i vrijeme: {currentDateTime}
                                 </Typography>
                             </Box>
-                            <Button color="inherit" onClick={handleLogout}>
+                            <Button color="inherit" onClick={handleLogout} startIcon={<LogoutOutlinedIcon />}>
                                 Izađi
                             </Button>
                         </Toolbar>

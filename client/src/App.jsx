@@ -5,10 +5,9 @@ import CashRegister from "../components/CashRegister";
 import Admin from "../components/Admin"
 import {RouterProvider, Route, createBrowserRouter, createRoutesFromElements} from "react-router-dom"
 import { loader as homeLoader } from "../components/Home";
-import {useCookies} from "react-cookie";
-import Cookies from "js-cookie";
 
 import {loader as cashRegisterLoader} from "../components/CashRegister";
+import { loader as adminLoader } from "../components/Admin";
 
 const router = createBrowserRouter(createRoutesFromElements(
     <Route path='/' element={<Layout />} >
@@ -24,6 +23,7 @@ const router = createBrowserRouter(createRoutesFromElements(
       />
       <Route path='admin'
              element={<Admin />}
+             loader={adminLoader}
       />
     </Route>
 ));
