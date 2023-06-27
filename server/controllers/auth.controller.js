@@ -1,12 +1,12 @@
 const auth = require('../passport/auth');
-
+const bcrypt = require('bcryptjs');
 const requestAdminAuth = async (req, res, next) => {
 
     console.log('requestAdminAuth');
     let token = req.headers.authorization;
 
     if (!token){
-        res.status(401).json({ message: 'User is not logged in' });
+        return res.status(401).json({ message: 'User is not logged in' });
     }
 
     token = token.split(' ')[1];
@@ -16,12 +16,13 @@ const requestAdminAuth = async (req, res, next) => {
     try {
         const user = await auth(token);
 
-        if (user?.Naziv_Uloge === 'Admin'){
+        if (user.Naziv_Uloge === 'Admin'){
+            console.log('Admin autentifikovan');
             return next();
         }
 
         else {
-            res.status(401).json({ message: 'User not recognized' })
+            return res.status(401).json({ message: 'User not recognized' })
         }
     }
     catch (err){
@@ -34,6 +35,7 @@ const requestAdminAuth = async (req, res, next) => {
 const requestAuth = async (req, res, next) => {
 
     console.log('requestAuth');
+
     let token = req.headers.authorization;
 
     if (!token){

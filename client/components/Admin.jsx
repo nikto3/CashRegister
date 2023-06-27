@@ -144,93 +144,82 @@ export default function Admin() {
         };
     }, []);
 
-
-    const handleEditProduct = (product) => {
-        setSelectedProduct(product);
+    // TODO dodati funkcionalnost da kada
+    //  korisnik zeli da izmijeni proizvod
+    //  ProductDialog dobije podatke o proizvodu
+    //  i odmah popuni dialog
+    const onAddProduct = (product) => {
+        // setSelectedProduct(product);
+        // TODO poslati put fetch zahtjev ka serveru koristeci
+        //  za rutu informacije o kategoriji i tipu
         setOpenProductsDialog(true);
     };
 
-    const handleEditWaiter = (waiter) => {
-        setSelectedWaiter(waiter);
-        // setOpenDialog(true);
+    const handleEditProduct = (product) => {
+        setSelectedProduct(product);
+        // TODO poslati put fetch zahtjev ka serveru koristeci
+        //  za rutu informacije o kategoriji i tipu
+        setOpenProductsDialog(true);
+    };
+    const onAddWaiter = (waiter) => {
+        // setSelectedWaiter(waiter);
         setOpenWaitersDialog(true);
     };
 
-    const handleDeleteProduct = (productId) => {
+    const handleDeleteProduct = async (productId) => {
         // Delete product with the given ID from the server
-        fetch(`http://localhost:3000/products/:${productId}`, {
-            method: "DELETE",
-            headers: {
-                Authorization: `Bearer ${Cookies.get("token")}`,
-            },
-        })
-            .then(() => {
-                setSuccessMessage("Product deleted successfully.");
-                fetchProducts();
-            })
-            .catch((error) => {
-                console.error("Error deleting product:", error);
-                setErrorMessage("Failed to delete product.");
+        try {
+            const res = await fetch(`http://localhost:3000/products/${productId}`, {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${Cookies.get("token")}`,
+                },
             });
+
+            if (res){
+                setSuccessMessage("Proizvod uspjesno obrisan");
+
+                setProducts(prevProducts => (
+                    prevProducts.filter((product) => product.ID !== productId)
+                ));
+                setFilteredProducts(prevProducts => (
+                    prevProducts.filter((product) => product.ID !== productId)
+                ));
+            }
+        }
+        catch (e) {
+            setErrorMessage('Problem rilikom brisanja proizvoda');
+            console.log(e);
+        }
     };
 
-    const handleDeleteWaiter = (waiterId) => {
+    const handleDeleteWaiter = async (waiterId) => {
         // Delete waiter with the given ID from the server
-        fetch(`http://localhost:3000/waiters/:${waiterId}`, {
-            method: "DELETE",
-            headers: {
-                Authorization: `Bearer ${Cookies.get("token")}`,
-            },
-        })
-            .then(() => {
+        try {
+            const res = await fetch(`http://localhost:3000/waiters/${waiterId}`, {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${Cookies.get("token")}`,
+                },
+            })
+
+            if (res.ok){
                 setSuccessMessage("Waiter deleted successfully.");
-                fetchWaiters();
-            })
-            .catch((error) => {
-                console.error("Error deleting waiter:", error);
-                setErrorMessage("Failed to delete waiter.");
-            });
+                setWaiters(prevWaiters => (
+                    prevWaiters.filter(waiter => waiter.ID !== waiterId)
+                ));
+
+                setFilteredWaiters(prevWaiters => (
+                    prevWaiters.filter(waiter => waiter.ID !== waiterId)
+                ));
+            }
+        }
+        catch (e) {
+            console.log(e);
+            setErrorMessage("Failed to delete waiter.");
+        }
     };
 
-    const handleSaveProduct = (product) => {
-        // Save the product to the server
-        fetch("http://localhost:3000/products", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${Cookies.get("token")}`,
-            },
-            body: JSON.stringify(product),
-        })
-            .then(() => {
-                setSuccessMessage("Product saved successfully.");
-                //fetchProducts();
-            })
-            .catch((error) => {
-                console.error("Error saving product:", error);
-                setErrorMessage("Failed to save product.");
-            });
-    };
-
-    const handleSaveWaiter = (waiter) => {
-        // Save the waiter to the server
-        fetch("http://localhost:3000/waiters", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${Cookies.get("token")}`,
-            },
-            body: JSON.stringify(waiter),
-        })
-            .then(() => {
-                setSuccessMessage("Waiter saved successfully.");
-                //fetchWaiters();
-            })
-            .catch((error) => {
-                console.error("Error saving waiter:", error);
-                setErrorMessage("Failed to save waiter.");
-            });
-    };
 
     function handleLogout(){
         Cookies.remove('token');
@@ -240,22 +229,29 @@ export default function Admin() {
     const handleProductSearch = (searchName, searchCategory, searchType) => {
         // Perform search based on search criteria
         let filteredProducts = products.filter((product) => {
-            const nameMatch = searchName === null || product.Naziv.toLowerCase().includes(searchName.toLowerCase());
+            console.log('Proizvod', product)
+            const nameMatch = searchName === '' || product.Naziv.toLowerCase().includes(searchName.toLowerCase());
+            console.log('Name match', nameMatch);
             // product nema atribut category za sada
-            // const categoryMatch = searchCategory === null ||  product.category === searchCategory;
-            // const typeMatch = searchType === null || product.type === searchType;
-            return nameMatch;
+            const categoryMatch = searchCategory === '' ||  product.Naziv_Kat === searchCategory;
+            console.log('Category match', categoryMatch);
+            const typeMatch = searchType === '' || product.Naziv_Vrste === searchType;
+            console.log('Type match', typeMatch);
+
+            console.log('nameMatch && categoryMatch && typeMatch:', nameMatch && categoryMatch && typeMatch);
+            return nameMatch && categoryMatch && typeMatch;
         });
 
+        console.log(filteredProducts);
         setFilteredProducts(filteredProducts);
 
     };
 
     function handleWaiterSearch(searchName, searchUsername){
         let filteredWaiters = waiters.filter((waiter) => {
-           const nameMatch = searchName === null || waiter.Ime.toLowerCase().includes(searchName.toLowerCase());
+           const nameMatch = searchName === '' || waiter.Ime.toLowerCase().includes(searchName.toLowerCase());
 
-           const usernameMatch = searchUsername === null || waiter.Username.toLowerCase().includes(searchUsername.toLowerCase());
+           const usernameMatch = searchUsername === '' || waiter.Username.toLowerCase().includes(searchUsername.toLowerCase());
 
            return nameMatch && usernameMatch
         });
@@ -289,12 +285,11 @@ export default function Admin() {
                 <Grid item xs={12} sm={6} md={5}>
                     <Paper>
                         <WaitersHeading
-                            onAddWaiter={() => handleEditWaiter(null)}
+                            onAddWaiter={() => onAddWaiter(null)}
                             onSearch={handleWaiterSearch}
                         />
                         <WaitersTable
                             waiters={filteredWaiters}
-                            onEdit={handleEditWaiter}
                             onDelete={handleDeleteWaiter}
                         />
                     </Paper>
@@ -303,7 +298,7 @@ export default function Admin() {
                     <Paper>
                         <ProductsHeading
                             onSearch={handleProductSearch}
-                            onAddProduct={() => handleEditProduct(null)}
+                            onAddProduct={() => onAddProduct(null)}
                         />
                        <ProductsTable
                             products={filteredProducts}
@@ -314,10 +309,22 @@ export default function Admin() {
                 </Grid>
             </Grid>
             <Dialog open={openProductsDialog} onClose={() => setOpenProductsDialog(false)}>
-                <ProductsDialog setOpenDialog={setOpenProductsDialog} />
+                <ProductsDialog
+                    setOpenDialog={setOpenProductsDialog}
+                    setProducts={setProducts}
+                    setFilteredProducts={setFilteredProducts}
+                    pName={selectedProduct ? selectedProduct.Naziv : ''}
+                    pCategory={selectedProduct ? selectedProduct.Naziv_Kat : ''}
+                    pType={selectedProduct ? selectedProduct.Naziv_Vrste : ''}
+                    pPrice={ selectedProduct ? selectedProduct.Cijena : null}
+                />
             </Dialog>
             <Dialog open={openWaitersDialog} onClose={() => setOpenWaitersDialog(false)}>
-                <WaitersDialog setOpenDialog={setOpenWaitersDialog} />
+                <WaitersDialog
+                    setOpenDialog={setOpenWaitersDialog}
+                    setWaiters={setWaiters}
+                    setFilteredWaiters={setFilteredWaiters}
+                />
             </Dialog>
             <Snackbar
                 open={successMessage !== ""}

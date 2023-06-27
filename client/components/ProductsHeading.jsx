@@ -35,7 +35,7 @@ const ProductsHeading = ({ onAddProduct, onSearch }) => {
                         variant="outlined"
                         value={name}
                         size="small"
-                        onChange={(e) => setName(e.target.value)}
+                        onChange={(e) => setName(e.target.value || '')}
                     />
                     <IconButton color="inherit" onClick={() => onSearch(name, category, type)}>
                         <Search />
@@ -52,10 +52,10 @@ const ProductsHeading = ({ onAddProduct, onSearch }) => {
                             <MenuItem value=''>
                                 <em>Prazno</em>
                             </MenuItem>
-                            <MenuItem value='pice'>
+                            <MenuItem value='Pice'>
                                 Pice
                             </MenuItem>
-                            <MenuItem value='hrana'>
+                            <MenuItem value='Hrana'>
                                 Hrana
                             </MenuItem>
                         </Select>
@@ -71,27 +71,30 @@ const ProductsHeading = ({ onAddProduct, onSearch }) => {
                         <Select
                             label="Search by Type"
                             value={type}
-                            onChange={(e) => setType(e.target.value || '')}
+                            onChange={(e) => {
+                                setType(e.target.value || '');
+                                console.log(e.target.value);
+                            }}
                         >
                             <MenuItem value=''>
                                 <em>Prazno</em>
                             </MenuItem>
-                            <MenuItem value='alkohol'>
+                            <MenuItem value='Alkoholno pice'>
                                 Alkoholno pice
                             </MenuItem>
-                            <MenuItem value='toplo'>
+                            <MenuItem value='Topli napitak'>
                                 Topli napitak
                             </MenuItem>
-                            <MenuItem value='sok'>
+                            <MenuItem value='Sok'>
                                 Sok
                             </MenuItem>
-                            <MenuItem value='predjelo'>
+                            <MenuItem value='Predjelo'>
                                 Predjelo
                             </MenuItem>
-                            <MenuItem value='glavno jelo'>
+                            <MenuItem value='Glavno jelo'>
                                 Glavno jelo
                             </MenuItem>
-                            <MenuItem value='dezert'>
+                            <MenuItem value='Dezert'>
                                 Dezert
                             </MenuItem>
                         </Select>

@@ -12,7 +12,7 @@ const ProductTableRow = ({ product, handleEditProduct, handleDeleteProduct, isEv
             <IconButton onClick={() => handleEditProduct(product)}>
                 <Edit />
             </IconButton>
-            <IconButton onClick={() => handleDeleteProduct(product)}>
+            <IconButton onClick={() => handleDeleteProduct(product.ID)}>
                 <Delete />
             </IconButton>
         </TableCell>

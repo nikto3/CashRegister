@@ -7,6 +7,12 @@ const {
     getJuices
 } = require('../controllers/cash.register.controller');
 
+const {
+    addAlcoholDrink,
+    addHotDrink,
+    addJuice
+} = require('../controllers/drinks.controller');
+
 router.get('/alcohol',
     requestAuth,
                 getAlcoholDrinks
@@ -20,5 +26,24 @@ router.get('/juices',
     requestAuth,
     getJuices
 );
+
+router.post(
+    '/alcohol',
+    requestAdminAuth,
+    addAlcoholDrink
+);
+
+router.post(
+    '/hot',
+        requestAdminAuth,
+        addHotDrink
+);
+
+router.post(
+    '/juices',
+        requestAdminAuth,
+        addJuice
+);
+
 
 module.exports = router;

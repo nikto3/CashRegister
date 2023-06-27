@@ -8,19 +8,21 @@ const WaiterTableRow = ({ waiter, onEdit, onDelete, isEvenRow }) => {
         onEdit(waiter);
     };
 
-    const handleDelete = () => {
-        onDelete(waiter.id);
-    };
+    // console.log(waiter);
 
     return (
-        <TableRow sx={{ backgroundColor: isEvenRow ? '#f5f5f5' : 'inherit'}}>
+        <TableRow sx={{ backgroundColor: isEvenRow ? '#f5f5f5' : 'inherit' }}>
             <TableCell>{waiter.Ime}</TableCell>
             <TableCell>{waiter.Prezime}</TableCell>
             <TableCell>{waiter.Username}</TableCell>
-            <TableCell>{waiter.Password}</TableCell>
-            <TableCell>{waiter.Naziv_Uloge}</TableCell>
+            {/*<TableCell>{waiter.Password}</TableCell>*/}
+            <TableCell>{waiter.Naziv_Uloge }</TableCell>
             <TableCell>
-                <IconButton color="default" onClick={handleDelete}>
+                <IconButton
+                    color="default"
+                    onClick={() => onDelete(waiter.ID)}
+                    disabled={waiter.Naziv_Uloge === 'Admin'}
+                >
                     <DeleteIcon />
                 </IconButton>
             </TableCell>

@@ -12,4 +12,7 @@ router.get('/',
 * token verification failed
 * uljepsati malo ovaj print, kada korisnik zeli da
 * pristupi ruti a nije ulogovan*/
+
+// TODO - dodati poruku unutar catch bloka
+//  kada ne uspije verifikacija tokena
 module.exports = router;

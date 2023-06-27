@@ -6,19 +6,31 @@ import {
     DialogTitle,
     FormControl, FormHelperText,
     InputLabel,
-    OutlinedInput, TextField
+    OutlinedInput, TextField,
+    Alert, AlertTitle
 } from "@mui/material";
 import {Check, Close} from "@mui/icons-material";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import Cookies from "js-cookie"
 
-export default function WaitersDialog({ setOpenDialog }) {
+export default function WaitersDialog({ setOpenDialog, setWaiters, setFilteredWaiters }) {
     const [name, setName] = useState("");
     const [surname, setSurname] = useState("");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [errors, setErrors] = useState({});
+    const [errors, setErrors] = useState({tmp: ''});
+    const [formSubmitted, setFormSubmitted] = useState(false);
 
     console.log('Rendered WaitersDialog component')
+
+    useEffect(() => {
+        if (Object.keys(errors).length === 0 && formSubmitted) {
+            console.log('Forma validna, druga provjera');
+            console.log('Errors:', errors);
+            setOpenDialog(false);
+        }
+
+    }, [errors]);
 
     const validateForm = () => {
         const newErrors = {};
@@ -39,10 +51,44 @@ export default function WaitersDialog({ setOpenDialog }) {
         return Object.keys(newErrors).length === 0;
 };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (validateForm()) {
-            // Perform save operation
-            setOpenDialog(false);
+            console.log('Forma validna, prva provjera');
+            const cookie = Cookies.get('token');
+            try {
+                const res = await fetch('http://localhost:3000/waiters', {
+                    method:'POST',
+                    headers: {
+                        Authorization: `Bearer ${cookie}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name,
+                        surname,
+                        username,
+                        password
+                    })
+                })
+
+                if (res.status === 409){
+                    setErrors(err => ({username: 'Korisnicko ime vec postoji'}));
+                    setFormSubmitted(false);
+                    console.log('Korisnik vec postoji');
+                }
+
+                else if (res.ok){
+                    console.log('Konobar uspjesno sacuvan')
+                    const newWaiter = await res.json();
+                    setWaiters(prevWaiters => [...prevWaiters, newWaiter]);
+                    setFilteredWaiters(prevWaiters => [...prevWaiters, newWaiter]);
+                    setErrors({});
+                    setFormSubmitted(true);
+                }
+
+            }
+            catch (e) {
+                console.log(e);
+            }
         }
     };
 
@@ -61,7 +107,8 @@ export default function WaitersDialog({ setOpenDialog }) {
                         <TextField
                             id="ime"
                             label="Ime *"
-                            defaultValue={name}
+                            name="name"
+                            value={name}
                             onChange={(event) => setName(event.target.value)}
                             error={!!errors.name}
                         />
@@ -72,7 +119,8 @@ export default function WaitersDialog({ setOpenDialog }) {
                         <TextField
                             id="prezime"
                             label="Prezime *"
-                            defaultValue={surname}
+                            name="surname"
+                            value={surname}
                             onChange={(event) => setSurname(event.target.value)}
                             error={!!errors.surname}
                         />
@@ -83,7 +131,8 @@ export default function WaitersDialog({ setOpenDialog }) {
                         <TextField
                             id="username"
                             label="Korisničko ime *"
-                            defaultValue={username}
+                            name='username'
+                            value={username}
                             onChange={(event) => setUsername(event.target.value)}
                             error={!!errors.username}
                         />
@@ -94,8 +143,9 @@ export default function WaitersDialog({ setOpenDialog }) {
                         <TextField
                             id="password"
                             label="Šifra *"
+                            name="password"
                             type="password"
-                            defaultValue={password}
+                            value={password}
                             onChange={(event) => setPassword(event.target.value)}
                             error={!!errors.password}
                         />

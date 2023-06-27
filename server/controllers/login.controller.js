@@ -1,5 +1,5 @@
 const { getUserByUsernameQuery } = require("../repository/user.repository");
-const passport = require("passport");
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const auth = require('../passport/auth');
 const getUserByUsername = async (req, res) => {
@@ -8,10 +8,13 @@ const getUserByUsername = async (req, res) => {
 
     const user = await getUserByUsernameQuery(username);
 
-    console.log('Metoda getuserByID');
+    if (!user){
+        return res.status(400).json({ message: "user doesn't exist" });
+    }
 
+    const match = await bcrypt.compare(password, user.Password);
 
-    if (user?.Password === password) {
+    if (match) {
 
       console.log(user);
       jwt.sign(
@@ -29,8 +32,6 @@ const getUserByUsername = async (req, res) => {
       );
 
 
-    } else {
-      res.status(400).json({ message: "user doesn't exist" });
     }
   } catch (err) {
     res.status(500).json({ message: 'Error on server side' });

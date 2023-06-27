@@ -30,8 +30,8 @@ export default function ProductsTable({ products, handleEditProduct, handleDelet
                         <ProductTableRow
                             key={product.id}
                             product={product}
-                            onEdit={handleEditProduct}
-                            onDelete={handleDeleteProduct}
+                            handleEditProduct={handleEditProduct}
+                            handleDeleteProduct={handleDeleteProduct}
                             isEvenRow={index % 2 === 0}
                         />
                     ))}

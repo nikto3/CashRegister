@@ -7,6 +7,7 @@ const authRouter = require('./routes/requestAuth');
 const drinksRouter = require('./routes/drinks.route');
 const foodRouter = require('./routes/food.route');
 const waitersRouter = require('./routes/waiters.route');
+const productsRouter = require('./routes/products.route');
 const passport = require('passport');
 const cors = require('cors');
 const cookie = require('cookie-parser');
@@ -33,6 +34,7 @@ app.use('/cash-register', cashRegisterRoute);
 app.use('/drinks', drinksRouter);
 app.use('/food', foodRouter);
 app.use('/waiters', waitersRouter);
+app.use('/products', productsRouter);
 
 
 app.listen(process.env.PORT, () =>

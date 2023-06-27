@@ -64,7 +64,7 @@ export async function loader({ request }) {
     } catch (e) {
         console.log(e);
         // dodati poruku u query
-        return redirect('/?message=Morate biti ulogovani');
+        return redirect('/?message=Problemi u bazi podataka');
     }
 }
 

@@ -1,14 +1,27 @@
 const express = require('express');
 const router = express.Router();
 
-const { requestAuth, requestAdminAuth } = require('../controllers/auth.controller');
-const { getUsers } = require('../controllers/waiters.controller');
+const { requestAdminAuth } = require('../controllers/auth.controller');
+const {
+    getUsers,
+    addWaiter,
+    deleteWaiter } = require('../controllers/waiters.controller');
 
 
 router.get('/',
-    requestAuth,
+    requestAdminAuth,
     getUsers
-    )
+);
+
+router.post('/',
+    requestAdminAuth,
+    addWaiter
+)
+
+router.delete('/:ID(\\d+)',
+    requestAdminAuth,
+    deleteWaiter
+);
 
 
 module.exports = router;

@@ -1,4 +1,5 @@
 const {connectToDB} = require('../../database/connect');
+const sql = require("mssql");
 
 async function getHotDrinksQuery(){
     const pool = await connectToDB();
@@ -14,5 +15,26 @@ async function getHotDrinksQuery(){
     return res ? res.recordset : null;
 }
 
+async function addHotDrinkQuery(drink){
+    try {
+        const pool = await connectToDB();
 
-module.exports = { getHotDrinksQuery }
+        const res = await pool
+            .request()
+            .query
+            `
+                INSERT INTO Proizvod ("Cijena", "Naziv_Vrste", "Naziv")
+                OUTPUT INSERTED.*
+                VALUES (${drink.price}, 'Topli napitak', ${drink.name})
+            `
+
+
+        return res.recordset[0];
+    }
+    catch (e) {
+        throw e;
+    }
+}
+
+
+module.exports = { getHotDrinksQuery, addHotDrinkQuery }

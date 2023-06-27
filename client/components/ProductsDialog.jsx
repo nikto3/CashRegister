@@ -12,25 +12,16 @@ import {
 import {useState} from "react";
 import {Check, Close} from "@mui/icons-material";
 import {NumericFormat} from "react-number-format";
+import Cookies from 'js-cookie';
 
 
-export default function ProductsDialog({ setOpenDialog }) {
-    const [name, setName] = useState("");
-    const [category, setCategory] = useState("");
-    const [type, setType] = useState("");
-    const [price, setPrice] = useState(null);
+export default function ProductsDialog({ setOpenDialog, setProducts, setFilteredProducts, pName, pCategory, pType, pPrice }) {
+    const [name, setName] = useState(pName);
+    const [category, setCategory] = useState(pCategory);
+    const [type, setType] = useState(pType);
+    const [price, setPrice] = useState(pPrice);
     const [errors, setErrors] = useState({});
 
-    const handlePriceChange = (event) => {
-        const input = event.target.value;
-        // Remove any non-digit characters from the input
-        const cleanedInput = input.replace(/[^0-9.]/g, "");
-        // Restrict the input to one dot
-        const dotCount = cleanedInput.split(".").length - 1;
-        if (dotCount <= 1) {
-            setPrice(cleanedInput);
-        }
-    };
 
     const validateForm = () => {
         const newErrors = {};
@@ -50,12 +41,55 @@ export default function ProductsDialog({ setOpenDialog }) {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (validateForm()) {
             // Perform save operation
-            setOpenDialog(false);
+            // TODO dodati fetch post zahtjev ka bazi
+
+            //console.log(name, category, type, price);
+            const cookie = Cookies.get('token');
+
+            try{
+                const res = await fetch(`http://localhost:3000/${category}/${type}`,{
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${cookie}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(
+                        {name,
+                            price
+
+                        })
+                })
+
+                if (res.ok){
+                    console.log('Proizvod uspjesno sacuvano');
+                    const newProduct = await res.json();
+                    console.log('Proizvod', newProduct);
+                    newProduct.Naziv_Kat = addCategory(newProduct.Naziv_Vrste);
+                    setProducts(prevProducts => [...prevProducts, newProduct]);
+                    setFilteredProducts(prevProducts => [...prevProducts, newProduct]);
+
+                }
+            }
+            catch(err){
+
+            }
+            finally {
+                setOpenDialog(false);
+            }
+
+
         }
     };
+
+    function addCategory(Naziv_Vrste){
+        if (Naziv_Vrste === 'Alkoholno pice' || Naziv_Vrste === 'Topli napitak' || Naziv_Vrste === 'Sok'){
+            return 'Pice';
+        }
+        return 'Hrana';
+    }
 
     return (
         <>
@@ -71,6 +105,7 @@ export default function ProductsDialog({ setOpenDialog }) {
                     <FormControl required fullWidth sx={{ m: "10px" }}>
                         <TextField
                             label="Naziv *"
+                            name="name"
                             value={name}
                             onChange={(event) => setName(event.target.value)}
                             error={!!errors.name}
@@ -84,12 +119,13 @@ export default function ProductsDialog({ setOpenDialog }) {
                         </InputLabel>
                         <Select
                             label="Kategorija"
+                            name="category"
                             value={category}
                             onChange={(event) => setCategory(event.target.value || "")}
                             error={!!errors.category}
                         >
-                            <MenuItem value="hrana">Hrana</MenuItem>
-                            <MenuItem value="pice">Pice</MenuItem>
+                            <MenuItem value="Hrana">Hrana</MenuItem>
+                            <MenuItem value="Pice">Pice</MenuItem>
                         </Select>
                         {errors.category && (
                             <Box sx={{ color: "red", fontSize: "12px" }}>
@@ -98,19 +134,20 @@ export default function ProductsDialog({ setOpenDialog }) {
                         )}
                     </FormControl>
 
-                    {category === "pice" ? (
+                    {category === "Pice" ? (
                         <FormControl required fullWidth sx={{ m: "10px" }}>
                             <InputLabel id="tip">Tip</InputLabel>
                             <Select
                                 label="Tip"
+                                name="type"
                                 value={type}
                                 onChange={(event) => setType(event.target.value || "")}
                                 error={!!errors.type}
                                 helperText={errors.type}
                             >
-                                <MenuItem value="alkoholno pice">Alkoholno pice</MenuItem>
-                                <MenuItem value="topli napitak">Topli napitak</MenuItem>
-                                <MenuItem value="sok">Sok</MenuItem>
+                                <MenuItem value="Alkoholno pice">Alkoholno pice</MenuItem>
+                                <MenuItem value="Topli napitak">Topli napitak</MenuItem>
+                                <MenuItem value="Sok">Sok</MenuItem>
                             </Select>
                             {errors.type && (
                                 <Box sx={{ color: "red", fontSize: "12px" }}>
@@ -123,13 +160,14 @@ export default function ProductsDialog({ setOpenDialog }) {
                             <InputLabel id="tip">Tip</InputLabel>
                             <Select
                                 label="Tip"
+                                name="type"
                                 value={type}
                                 onChange={(event) => setType(event.target.value || "")}
                                 error={!!errors.type}
                             >
-                                <MenuItem value="predjelo">Predjelo</MenuItem>
-                                <MenuItem value="glavno jelo">Glavno jelo</MenuItem>
-                                <MenuItem value="dezert">Dezert</MenuItem>
+                                <MenuItem value="Predjelo">Predjelo</MenuItem>
+                                <MenuItem value="Glavno jelo">Glavno jelo</MenuItem>
+                                <MenuItem value="Dezert">Dezert</MenuItem>
                             </Select>
                             {errors.type && (
                                 <Box sx={{ color: "red", fontSize: "12px" }}>
@@ -142,6 +180,7 @@ export default function ProductsDialog({ setOpenDialog }) {
                     <FormControl required fullWidth sx={{ m: "10px" }}>
                         <NumericFormat
                             label="Cijena *"
+                            name="price"
                             value={price}
                             onValueChange={({ value }) => setPrice(value)}
                             thousandSeparator
