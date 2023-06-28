@@ -5,7 +5,7 @@ import { Edit, Delete } from '@mui/icons-material';
 const ProductTableRow = ({ product, handleEditProduct, handleDeleteProduct, isEvenRow }) => (
     <TableRow key={product.ID} sx={{ backgroundColor: isEvenRow ? '#f5f5f5' : 'inherit'}}>
         <TableCell>{product.Naziv}</TableCell>
-        <TableCell>{product.Cijena}</TableCell>
+        <TableCell>€{parseFloat(product.Cijena).toFixed(2)}</TableCell>
         <TableCell>{product.Naziv_Kat}</TableCell>
         <TableCell>{product.Naziv_Vrste}</TableCell>
         <TableCell>

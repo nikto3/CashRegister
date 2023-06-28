@@ -15,14 +15,15 @@ import {NumericFormat} from "react-number-format";
 import Cookies from 'js-cookie';
 
 
-export default function ProductsDialog({ setOpenDialog, setProducts, setFilteredProducts, pName, pCategory, pType, pPrice }) {
+export default function ProductsDialog({ setOpenDialog, setProducts, setFilteredProducts, pID, pName, pCategory, pType, pPrice }) {
+    const [ID, setID] = useState(pID);
     const [name, setName] = useState(pName);
     const [category, setCategory] = useState(pCategory);
     const [type, setType] = useState(pType);
     const [price, setPrice] = useState(pPrice);
     const [errors, setErrors] = useState({});
 
-
+    const [toAdd, setToAdd] = useState(pName === '' && pCategory === '' && pType === '' && pPrice === '');
     const validateForm = () => {
         const newErrors = {};
         if (name.trim() === "") {
@@ -41,40 +42,112 @@ export default function ProductsDialog({ setOpenDialog, setProducts, setFiltered
         return Object.keys(newErrors).length === 0;
     };
 
+    function addProduct(newProduct){
+        setProducts(prevProducts => {
+            const updatedProducts = prevProducts.map(product => ({ ...product }));
+
+            const insertIndex = updatedProducts.findIndex(product => product.Naziv_Vrste === newProduct.Naziv_Vrste);
+
+            if (insertIndex !== -1) {
+                updatedProducts.splice(insertIndex, 0, newProduct);
+            } else {
+                updatedProducts.push({ type: newProduct.Naziv_Kat, isSection: true });
+                updatedProducts.push(newProduct);
+            }
+
+            return updatedProducts;
+        });
+
+
+        setFilteredProducts(prevProducts => {
+            const updatedProducts = prevProducts.map(product => ({ ...product }));
+
+            const insertIndex = updatedProducts.findIndex(product => product.Naziv_Vrste === newProduct.Naziv_Vrste);
+
+            if (insertIndex !== -1) {
+                updatedProducts.splice(insertIndex, 0, newProduct);
+            } else {
+                updatedProducts.push({ type: newProduct.Naziv_Kat, isSection: true });
+                updatedProducts.push(newProduct);
+            }
+
+            return updatedProducts;
+
+        });
+
+    }
+
+    function updateProduct(newProduct){
+        setProducts(prevProducts => (
+            prevProducts.map(product => {
+                if (product.ID === newProduct.ID){
+                    return {
+                        ID: newProduct.ID,
+                        Naziv: newProduct.name,
+                        Cijena: newProduct.price,
+                        Naziv_Kat: newProduct.category,
+                        Naziv_Vrste: newProduct.type
+                    };
+                }
+
+                return product;
+            })
+        ));
+
+        setFilteredProducts(prevProducts => (
+            prevProducts.map(product => {
+                if (product.ID === newProduct.ID){
+                    return {
+                        ID: newProduct.ID,
+                        Naziv: newProduct.name,
+                        Cijena: newProduct.price,
+                        Naziv_Kat: newProduct.category,
+                        Naziv_Vrste: newProduct.type
+                    };
+                }
+
+                return product;
+            })
+        ));
+    }
+
     const handleSave = async () => {
         if (validateForm()) {
-            // Perform save operation
-            // TODO dodati fetch post zahtjev ka bazi
 
-            //console.log(name, category, type, price);
             const cookie = Cookies.get('token');
 
             try{
-                const res = await fetch(`http://localhost:3000/${category}/${type}`,{
-                    method: 'POST',
+                const res = await fetch(`http://localhost:3000/products`,{
+                    method: toAdd ? 'POST' : 'PUT',
                     headers: {
                         Authorization: `Bearer ${cookie}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(
-                        {name,
-                            price
+                        {
+                            ID,
+                            name,
+                            price,
+                            type
 
                         })
                 })
 
                 if (res.ok){
-                    console.log('Proizvod uspjesno sacuvano');
-                    const newProduct = await res.json();
-                    console.log('Proizvod', newProduct);
-                    newProduct.Naziv_Kat = addCategory(newProduct.Naziv_Vrste);
-                    setProducts(prevProducts => [...prevProducts, newProduct]);
-                    setFilteredProducts(prevProducts => [...prevProducts, newProduct]);
+
+                    if (toAdd){
+                        const newProduct = await res.json();
+                        newProduct.Naziv_Kat = addCategory(newProduct.Naziv_Vrste);
+                        addProduct(newProduct);
+                    }
+                    else {
+                        updateProduct({ID, name, category, type, price});
+                    }
 
                 }
             }
             catch(err){
-
+                console.log(err);
             }
             finally {
                 setOpenDialog(false);

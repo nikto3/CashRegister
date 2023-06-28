@@ -170,7 +170,7 @@ export default function CashRegister() {
     return (
         <div style={{ height: "100vh" }}>
                 <div style={{ height: "100%" }}>
-                    <AppBar position="static" color='default'>
+                    <AppBar position="static" color='primary'>
                         <Toolbar>
                             <Box sx={{ flexGrow: 1, marginTop:'5px' }}>
                                 <Typography variant="h6" component="div">

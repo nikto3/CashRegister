@@ -95,8 +95,7 @@ export async function loader({ request }) {
 
 
 export default function Admin() {
-    const [selectedProduct, setSelectedProduct] = useState('pice');
-    const [selectedWaiter, setSelectedWaiter] = useState(null);
+    const [selectedProduct, setSelectedProduct] = useState(null);
     const [openProductsDialog, setOpenProductsDialog] = useState(false);
     const [openWaitersDialog, setOpenWaitersDialog] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
@@ -149,9 +148,6 @@ export default function Admin() {
     //  ProductDialog dobije podatke o proizvodu
     //  i odmah popuni dialog
     const onAddProduct = (product) => {
-        // setSelectedProduct(product);
-        // TODO poslati put fetch zahtjev ka serveru koristeci
-        //  za rutu informacije o kategoriji i tipu
         setOpenProductsDialog(true);
     };
 
@@ -313,10 +309,11 @@ export default function Admin() {
                     setOpenDialog={setOpenProductsDialog}
                     setProducts={setProducts}
                     setFilteredProducts={setFilteredProducts}
+                    pID={selectedProduct ? selectedProduct.ID : ''}
                     pName={selectedProduct ? selectedProduct.Naziv : ''}
                     pCategory={selectedProduct ? selectedProduct.Naziv_Kat : ''}
                     pType={selectedProduct ? selectedProduct.Naziv_Vrste : ''}
-                    pPrice={ selectedProduct ? selectedProduct.Cijena : null}
+                    pPrice={ selectedProduct ? selectedProduct.Cijena : ''}
                 />
             </Dialog>
             <Dialog open={openWaitersDialog} onClose={() => setOpenWaitersDialog(false)}>
