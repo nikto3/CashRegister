@@ -1,4 +1,9 @@
-const { deleteProductQuery, addProductQuery, updateProductQuery } = require('../repository/products.repository');
+const { deleteProductQuery,
+    addProductQuery,
+    updateProductQuery ,
+    getProductsTodayQuery
+} = require('../repository/products.repository');
+
 
 async function deleteProduct(req, res){
     try{
@@ -62,8 +67,27 @@ async function updateProduct(req, res) {
     }
 }
 
+async function getProductsToday(req, res) {
+    try {
+        const result = await getProductsTodayQuery();
+
+        if (result){
+            console.log('Result:',result);
+            res.status(200).json(result);
+        }
+        else {
+            res.status(500).end();
+        }
+    }
+    catch (e) {
+        console.log('Error in getProductsToday', e);
+        res.status(500).end();
+    }
+}
+
 module.exports = {
     deleteProduct,
     addProduct,
-    updateProduct
+    updateProduct,
+    getProductsToday
 }

@@ -31,8 +31,11 @@ const getUserByUsername = async (req, res) => {
           }
       );
 
-
     }
+
+    else {
+        res.status(401).json({ message: 'User not authorized' });
+    } 
   } catch (err) {
     res.status(500).json({ message: 'Error on server side' });
   }

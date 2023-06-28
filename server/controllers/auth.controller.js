@@ -39,7 +39,7 @@ const requestAuth = async (req, res, next) => {
     let token = req.headers.authorization;
 
     if (!token){
-        res.status(401).json({ message: 'User is not logged in' });
+        return res.status(401).json({ message: 'User is not logged in' });
     }
 
     token = token.split(" ")[1];

@@ -8,29 +8,18 @@ import {Container, Typography, TextField, Button, InputAdornment, Alert} from '@
 import {AccountCircle, LockOutlined} from "@mui/icons-material";
 import Cookies from 'js-cookie';
 
+import background from "../src/assets/Pozadina.jpeg";
+
 
 export async function loader({ request }) {
     console.log('Pozvao sam homeLoader');
-
-    try {
-        // const res = await fetch('http://localhost:3000/');
-        // const data = await res.json();
-        //
-        // console.log(data);
-
-        return new URL(request.url).searchParams.get("message");
-    }
-    catch (e) {
-        return null;
-    }
-
+    return new URL(request.url).searchParams.get("message");
 }
 
 
 export default function Home(){
 
     const [user, setUser] = useState({ username: '', password: '' });
-    const [isValid, setIsValid] = useState(() => isTokenValid(Cookies.get('token')));
     const [passwordError, setPasswordError] = useState("");
 
     let message = useLoaderData();
@@ -39,43 +28,11 @@ export default function Home(){
     const navigate = useNavigate();
 
     function getHeader(){
-        return  isValid
-            ? {
-                Authorization: `Bearer ${Cookies.get('token')}`,
-                'Content-Type': 'application/json'
-            }
-            : {'Content-Type': 'application/json'}
-    }
-
-    useEffect(() => {
-        const token = Cookies.get('token');
-
-        if (token && isTokenValid(token)){
-            setIsValid(true);
-            console.log('Novi token',token);
+        return  {
+            Authorization: `Bearer ${Cookies.get('token')}`,
+            'Content-Type': 'application/json'
         }
-
-
-        return () => {
-            setIsValid(false);
-        };
-
-    }, [Cookies.get('token')]);
-
-
-    function isTokenValid(token) {
-        if (!token) {
-            return false;
-        }
-
-        // Decode the token and check the expiration date
-        const decodedToken = jwt_decode(token);
-        const currentTimestamp = Date.now() / 1000;
-
-        return decodedToken.exp > currentTimestamp;
     }
-
-
 
     function handleInputChange(event){
         setUser((prevUser) => {
@@ -90,7 +47,7 @@ export default function Home(){
 
     function onSubmit(event){
         event.preventDefault();
-        message = "";
+        // message = "";
 
         if (!user.username || !user.password) return;
 
@@ -113,7 +70,7 @@ export default function Home(){
                     return res.json();
                 }
                 else {
-                    throw new Error("User hasn't logged in");
+                    throw new Error("Netacno korisnicko ime ili lozinka");
                 }
             }).then(data => {
                 const { token, user } = data;
@@ -139,8 +96,8 @@ export default function Home(){
 
         })
             .catch(err => {
-                console.log("Greska." ,err);
-                navigate('/?message=Netacni kredencijali');
+                console.log("Greska." ,err.message);
+                navigate(`/?message=${err.message}`);
             })
         ;
 
@@ -155,6 +112,11 @@ export default function Home(){
                 justifyContent: 'center',
                 alignItems: 'center',
                 height: '100vh',
+                margin: '0px',
+                maxWidth: '1920px',
+                backgroundImage: `url(${background})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center"
             }}
         >
             <form
@@ -164,7 +126,7 @@ export default function Home(){
                     padding: "16px",
                     boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)",
                     borderRadius: "7px",
-                    backgroundColor: "#fff",
+                    backgroundColor: "rgba(255, 255, 255, 0.7)",
                     textAlign: "center",
                     display: "flex",
                     flexDirection: "column",

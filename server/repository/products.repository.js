@@ -1,5 +1,6 @@
 const {connectToDB} = require("../database/connect");
 const sql = require("mssql");
+const moment = require('moment');
 
 
 async function addProductQuery(product){
@@ -65,8 +66,34 @@ async function deleteProductQuery(ID) {
     }
 }
 
+async function getProductsTodayQuery(){
+    try {
+        const pool = await connectToDB();
+        const date = moment().format('YYYY-MM-DD');
+
+        const res = await pool
+            .request()
+            .input('date', sql.Date, date)
+            .query
+            `
+                SELECT P.Naziv, P.Cijena, V.Naziv_Kat, COUNT(*) AS Kolicina
+                FROM Racun_proizvod RP JOIN Izvjestaj I on I.ID = RP.Izvjestaj_ID
+                JOIN Proizvod P on RP.P_ID = P.ID JOIN Vrsta V on P.Naziv_Vrste = V.Naziv
+                JOIN Kategorija K on V.Naziv_Kat = K.Naziv
+                WHERE I.Datum=@date
+                GROUP BY P.ID, P.Naziv, P.Cijena, V.Naziv_Kat
+            `
+
+        return res.recordset;
+    }
+    catch (e) {
+        throw e;
+    }
+}
+
 module.exports = {
     deleteProductQuery,
     addProductQuery,
-    updateProductQuery
+    updateProductQuery,
+    getProductsTodayQuery
 }

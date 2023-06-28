@@ -314,6 +314,7 @@ export default function Admin() {
                     pCategory={selectedProduct ? selectedProduct.Naziv_Kat : ''}
                     pType={selectedProduct ? selectedProduct.Naziv_Vrste : ''}
                     pPrice={ selectedProduct ? selectedProduct.Cijena : ''}
+                    setSelectedProduct={setSelectedProduct}
                 />
             </Dialog>
             <Dialog open={openWaitersDialog} onClose={() => setOpenWaitersDialog(false)}>

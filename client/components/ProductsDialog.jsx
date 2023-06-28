@@ -15,7 +15,7 @@ import {NumericFormat} from "react-number-format";
 import Cookies from 'js-cookie';
 
 
-export default function ProductsDialog({ setOpenDialog, setProducts, setFilteredProducts, pID, pName, pCategory, pType, pPrice }) {
+export default function ProductsDialog({ setOpenDialog, setProducts, setFilteredProducts, pID, pName, pCategory, pType, pPrice, setSelectedProduct }) {
     const [ID, setID] = useState(pID);
     const [name, setName] = useState(pName);
     const [category, setCategory] = useState(pCategory);
@@ -271,7 +271,10 @@ export default function ProductsDialog({ setOpenDialog, setProducts, setFiltered
                 <Button
                     color="inherit"
                     startIcon={<Close />}
-                    onClick={() => setOpenDialog(false)}
+                    onClick={() => {
+                        setOpenDialog(false);
+                        setSelectedProduct(null);
+                    }}
                 >
                     Izadji
                 </Button>

@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from "react";
-import {CircularProgress, Box, Typography, Grid} from "@mui/material";
+import React from "react";
+import {Grid} from "@mui/material";
 import MenuItem from "./MenuItem.jsx";
 
 export default function Menu({ items, onSelectItemFunc }) {
-    const [isLoading, setIsLoading] = useState(true);
-    const [drinks, setDrinks] = useState([]);
 
     return (
         <Grid container spacing={3}>

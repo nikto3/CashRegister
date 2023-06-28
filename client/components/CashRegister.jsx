@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import { TabPanel, TabContext } from "@mui/lab";
 import { ExitToApp, Print } from "@mui/icons-material";
+import background from "../src/assets/PozadinaKasa.jpeg";
 
 
 
@@ -28,6 +29,15 @@ import {getJuices} from "../api/getJuices.js";
 import {getAppetizers} from "../api/getAppetizers.js";
 import {getMainCourses} from "../api/getMainCourses.js";
 import {getDesserts} from "../api/getDesserts.js";
+
+import * as pdfMake from "pdfmake/build/pdfmake";
+import * as pdfFonts from "pdfmake/build/vfs_fonts";
+import generateReportPdf from "../utils/generateReportPdf.js";
+import generatePdf from "../utils/generatePdf.js";
+
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
+
+
 
 export async function loader({ request }) {
     console.log('Pozvao sam cashRegisterLoader');
@@ -75,14 +85,17 @@ export default function CashRegister() {
     const [selectedTab, setSelectedTab] = useState("drinks");
     const [drinkType, setDrinkType] = useState("alcohol");
     const [foodType, setFoodType] = useState("predjelo");
-    const [waiter, setWaiter] = useState(location.state.user);
+    const [waiter, setWaiter] = useState(location.state?.user || '');
     const [currentDateTime, setCurrentDateTime] = useState("");
 
     const [billItems, setBillItems] = useState([]);
 
+
     const data = useLoaderData();
 
-    // console.log('Cash-Register component');
+
+
+    const [reportIsPrinted, setReportIsPrinted] = useState(false);
 
     const [hotDrinks, setHotDrinks] = useState(() => data.hot);
     const [alcoholDrinks, setAlcoholDrinks] = useState(() => data.alcohol);
@@ -93,13 +106,23 @@ export default function CashRegister() {
 
     const navigate = useNavigate();
 
+    useEffect(() => {
+        fetch('http://localhost:3000/report',{
+            headers: {
+                Authorization: `Bearer ${Cookies.get('token')}`
+            }
+        })
+            .then(res => res.json())
+            .then(data => setReportIsPrinted(data.printed))
+            .catch(err => console.log(err))
+        ;
+    }, [])
 
 
     function onSelectItem(item) {
         const selectedBillItem = billItems.find((billItem) => billItem.id === item.id);
 
         if (selectedBillItem) {
-            // Item already exists in the bill, increment quantity
             setBillItems((prevBillItems) => {
                 return prevBillItems.map((billItem) => {
                     if (billItem.id === item.id) {
@@ -109,7 +132,6 @@ export default function CashRegister() {
                 });
             });
         } else {
-            // Item doesn't exist in the bill, add it with quantity 1
             const newBillItem = { ...item, quantity: 1 };
             setBillItems((prevBillItems) => [...prevBillItems, newBillItem]);
         }
@@ -162,15 +184,120 @@ export default function CashRegister() {
         navigate('/');
     };
 
-    const handlePrintBill = () => {
-        // Implement your logic for printing the bill
-        console.log("Printing the bill...");
+    async function handlePrintReport(){
+
+        if (reportIsPrinted) {
+            window.alert('Izvještaj je već napravljen za danas.');
+            return;
+        }
+
+        const confirmPrint = window.confirm("Da li ste sigurni?Izvjestaj mozete napraviti samo jednom u toku dana");
+        if (!confirmPrint){
+            return;
+        }
+
+        try {
+            const reportData = await fetch(`http://localhost:3000/report/${waiter.ID}`,{
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${Cookies.get('token')}`
+                }
+            });
+            const reportID = await reportData.json();
+
+            const billsData = await fetch('http://localhost:3000/bill',{
+                headers: {
+                    Authorization: `Bearer ${Cookies.get('token')}`
+                }
+            });
+
+            const billIDs = await billsData.json();
+
+            console.log('Bill IDs:', billIDs);
+
+            const result = await fetch(`http://localhost:3000/bill/products/${reportID}`,{
+                method: 'PUT',
+                headers: {
+                    Authorization: `Bearer ${Cookies.get('token')}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({billIDs})
+            });
+
+            if (result){
+
+                const productsData = await fetch('http://localhost:3000/products',{
+                   headers: {
+                       Authorization: `Bearer ${Cookies.get('token')}`
+                   }
+                });
+
+                const products = await productsData.json();
+
+                console.log('Products:', products);
+
+                generateReportPdf(products);
+
+                console.log('Report made successfully!');
+                setReportIsPrinted(true);
+            }
+
+        }
+        catch (e) {
+            console.log(e);
+        }
+
+    }
+
+    const handlePrintBill = async () => {
+        const confirmPrint = window.confirm("Da li ste sigurni?");
+        if (!confirmPrint) {
+            return;
+        }
+
+        try {
+            const billIDData = await fetch(`http://localhost:3000/bill/${waiter.ID}`,{
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${Cookies.get('token')}`
+                }
+            });
+
+            const billID = await billIDData.json();
+
+            const result = await fetch(`http://localhost:3000/bill/products/${billID}`,{
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${Cookies.get('token')}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(billItems)
+            });
+
+            if (result){
+                console.log('Added new bill and bill items to database');
+                generatePdf(billItems);
+                setBillItems([]);
+            }
+        }
+        catch(e){
+            console.log(e);
+        }
     };
 
+
     return (
-        <div style={{ height: "100vh" }}>
+        <div
+            style={{
+                height: "100vh",
+                backgroundImage: `url(${background})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center"
+            }}
+
+        >
                 <div style={{ height: "100%" }}>
-                    <AppBar position="static" color='primary'>
+                    <AppBar position="static" color='default' sx={{ backgroundColor: "rgba(88,112,109, 0.8)"}}>
                         <Toolbar>
                             <Box sx={{ flexGrow: 1, marginTop:'5px' }}>
                                 <Typography variant="h6" component="div">
@@ -183,6 +310,13 @@ export default function CashRegister() {
                                     Datum i vrijeme: {currentDateTime}
                                 </Typography>
                             </Box>
+                            <Button
+                                color="inherit"
+                                onClick={handlePrintReport}
+                                startIcon={<Print />}
+                            >
+                                Zaključi kasu
+                            </Button>
                             <Button color="inherit" onClick={handleLogout} startIcon={<LogoutOutlinedIcon />}>
                                 Izađi
                             </Button>
@@ -269,13 +403,14 @@ export default function CashRegister() {
                                 <Box sx={{ height: "100%", overflowY: "auto" }}>
                                     <BillSection
                                     items={billItems}
-                                    onDeleteItem={onDeleteItem}/>
+                                    onDeleteItem={onDeleteItem}
+                                    handlePrintBill={handlePrintBill}
+                                    />
                                 </Box>
                             </Box>
                         </Box>
                     </Box>
                 </div>
-            {/*)}*/}
         </div>
     );
 }

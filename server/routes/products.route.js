@@ -1,8 +1,13 @@
 const express = require('express');
 const router = express.Router();
 
-const { deleteProduct, addProduct, updateProduct } = require('../controllers/product.controller');
-const { requestAdminAuth } = require('../controllers/auth.controller');
+const { deleteProduct, addProduct, updateProduct, getProductsToday } = require('../controllers/product.controller');
+const { requestAdminAuth, requestAuth } = require('../controllers/auth.controller');
+
+router.get('/',
+    requestAuth,
+    getProductsToday
+)
 
 router.post('/',
     requestAdminAuth,

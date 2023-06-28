@@ -8,6 +8,8 @@ const drinksRouter = require('./routes/drinks.route');
 const foodRouter = require('./routes/food.route');
 const waitersRouter = require('./routes/waiters.route');
 const productsRouter = require('./routes/products.route');
+const billRouter = require('./routes/bill.route');
+const reportRouter = require('./routes/report.route');
 const passport = require('passport');
 const cors = require('cors');
 const cookie = require('cookie-parser');
@@ -35,6 +37,8 @@ app.use('/drinks', drinksRouter);
 app.use('/food', foodRouter);
 app.use('/waiters', waitersRouter);
 app.use('/products', productsRouter);
+app.use('/bill', billRouter);
+app.use('/report', reportRouter);
 
 
 app.listen(process.env.PORT, () =>
