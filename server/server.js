@@ -13,7 +13,7 @@ const reportRouter = require('./routes/report.route');
 const passport = require('passport');
 const cors = require('cors');
 const cookie = require('cookie-parser');
-require('./passport/passport');
+
 
 connectToDB()
   .then(() => console.log("Konekcija uspjela"))

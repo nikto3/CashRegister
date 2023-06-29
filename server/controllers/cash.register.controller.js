@@ -118,9 +118,22 @@ async function getDesserts(req, res){
     }
 }
 
+async function checkIfWaiter(req, res) {
+    const { user } = res.locals;
+
+    if (user?.Naziv_Uloge === 'Konobar'){
+        return res.status(200).end();
+    }
+    else {
+        return res.status(401).end();
+    }
+}
+
 module.exports = { getAlcoholDrinks,
                     getHotDrinks,
                     getJuices,
                     getAppetizers,
                     getMainCourses,
-                    getDesserts };
+                    getDesserts,
+                    checkIfWaiter
+};

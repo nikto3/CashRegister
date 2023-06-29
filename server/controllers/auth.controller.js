@@ -17,7 +17,6 @@ const requestAdminAuth = async (req, res, next) => {
         const user = await auth(token);
 
         if (user.Naziv_Uloge === 'Admin'){
-            console.log('Admin autentifikovan');
             return next();
         }
 
@@ -34,7 +33,6 @@ const requestAdminAuth = async (req, res, next) => {
 
 const requestAuth = async (req, res, next) => {
 
-    console.log('requestAuth');
 
     let token = req.headers.authorization;
 
@@ -48,6 +46,7 @@ const requestAuth = async (req, res, next) => {
         const user = await auth(token);
 
         if (user){
+            res.locals.user = user;
             return next();
         }
         else {

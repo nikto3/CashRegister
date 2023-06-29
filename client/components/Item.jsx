@@ -1,6 +1,6 @@
 import React from "react";
 import { Typography, Box, IconButton, Tooltip, Button } from "@mui/material";
-import { Delete, Print } from "@mui/icons-material";
+import { Delete } from "@mui/icons-material";
 
 export default function Item({ id, quantity, name, price, onDelete }) {
     const handleDelete = () => {
