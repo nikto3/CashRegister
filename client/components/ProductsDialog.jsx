@@ -15,7 +15,19 @@ import {NumericFormat} from "react-number-format";
 import Cookies from 'js-cookie';
 
 
-export default function ProductsDialog({ setOpenDialog, setProducts, setFilteredProducts, pID, pName, pCategory, pType, pPrice, setSelectedProduct }) {
+export default function ProductsDialog({
+                                           setOpenDialog,
+                                           setProducts,
+                                           setFilteredProducts,
+                                           pID,
+                                           pName,
+                                           pCategory,
+                                           pType,
+                                           pPrice,
+                                           setSelectedProduct,
+                                           setSuccessMessage,
+                                           setFailureMessage
+                                       }) {
     const [ID, setID] = useState(pID);
     const [name, setName] = useState(pName);
     const [category, setCategory] = useState(pCategory);
@@ -143,7 +155,10 @@ export default function ProductsDialog({ setOpenDialog, setProducts, setFiltered
                     else {
                         updateProduct({ID, name, category, type, price});
                     }
-
+                    setSuccessMessage('Proizvod uspješno sačuvan');
+                }
+                else {
+                    setFailureMessage('Problem prilikom upisivanja novog proizvoda');
                 }
             }
             catch(err){

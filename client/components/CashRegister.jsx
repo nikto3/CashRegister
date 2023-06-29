@@ -1,21 +1,18 @@
 import React, { useState, useEffect } from "react";
 import {useNavigate, useLocation, redirect, useLoaderData} from "react-router-dom";
-import { useCookies } from "react-cookie";
 import Cookies from "js-cookie";
 import moment from "moment";
 import {
-    Container,
     Typography,
     Box,
     AppBar,
     Toolbar,
-    IconButton,
     Button,
     Tabs,
     Tab,
 } from "@mui/material";
 import { TabPanel, TabContext } from "@mui/lab";
-import { ExitToApp, Print } from "@mui/icons-material";
+import {  Print } from "@mui/icons-material";
 import background from "../src/assets/PozadinaKasa.jpeg";
 
 
@@ -40,18 +37,16 @@ pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 
 export async function loader({ request }) {
-    console.log('Pozvao sam cashRegisterLoader');
+
     try {
         const cookie = Cookies.get('token');
-        const res = await fetch('http://localhost:3000/auth',{
+        const res = await fetch('http://localhost:3000/auth/waiter',{
             headers: {
                 Authorization: `Bearer ${cookie}`
             }
         });
 
         if (res.ok) {
-            // return null;
-            console.log('res.ok');
             const alcohol = await getAlcoholDrinks(cookie);
             const hot = await getHotDrinks(cookie);
             const juices = await getJuices(cookie);
@@ -347,15 +342,12 @@ export default function CashRegister() {
 
                                         <TabPanel value="alcohol" index="alcohol">
                                             <Menu items={alcoholDrinks} onSelectItemFunc={onSelectItem} />
-                                            {/*<AlcoholDrinksSection items={alcoholDrinks} />*/}
                                         </TabPanel>
                                         <TabPanel value="hot" index="hot">
                                             <Menu items={hotDrinks} onSelectItemFunc={onSelectItem} />
-                                            {/*<HotDrinksSection items={hotDrinks} />*/}
                                         </TabPanel>
                                         <TabPanel value="juices" index="juices">
                                             <Menu items={juices} onSelectItemFunc={onSelectItem} />
-                                            {/*<JuicesSection items={juices} />*/}
                                         </TabPanel>
                                     </TabContext>
                                 )}
@@ -376,15 +368,12 @@ export default function CashRegister() {
 
                                         <TabPanel value="predjelo" index="predjelo">
                                             <Menu items={predjela} onSelectItemFunc={onSelectItem} />
-                                            {/*<PredjeloSection items={predjela}/>*/}
                                         </TabPanel>
                                         <TabPanel value="glavnoJelo" index="glavnoJelo">
                                             <Menu items={glavnaJela} onSelectItemFunc={onSelectItem} />
-                                            {/*<GlavnoJeloSection items={glavnaJela} />*/}
                                         </TabPanel>
                                         <TabPanel value="dezert" index="dezert">
                                             <Menu items={dezerti} onSelectItemFunc={onSelectItem} />
-                                            {/*<DezertSection items={dezerti}/>*/}
                                         </TabPanel>
                                     </TabContext>
                                 )}

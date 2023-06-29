@@ -1,38 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, redirect, useLoaderData } from "react-router-dom";
+import { useNavigate, redirect, useLoaderData, useLocation } from "react-router-dom";
 import {
     Container,
     Typography,
-    TextField,
     Button,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
     Grid,
     Paper,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    IconButton,
     Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
     Snackbar,
     AppBar,
-    Toolbar, Box, OutlinedInput, FilledInput,
+    Toolbar
 } from "@mui/material";
-import {
-    AddCircleOutline,
-    Edit,
-    Delete,
-    Close,
-    Check,
-} from "@mui/icons-material";
+
 import Cookies from "js-cookie";
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import moment from "moment";
@@ -56,14 +35,13 @@ export async function loader({ request }) {
     console.log('Pozvao sam adminLoader');
     try {
         const cookie = Cookies.get('token');
-        const res = await fetch('http://localhost:3000/auth',{
+        const res = await fetch('http://localhost:3000/auth/admin',{
             headers: {
                 Authorization: `Bearer ${cookie}`
             }
         });
 
         if (res.ok) {
-            // return null;
             console.log('res.ok');
             const alcohol = await getAlcoholDrinks(cookie);
             const hot = await getHotDrinks(cookie);
@@ -84,11 +62,11 @@ export async function loader({ request }) {
             }
 
         }
-        // dodati poruku u query
+
         return redirect('/?message=Morate biti ulogovani');
     } catch (e) {
         console.log(e);
-        // dodati poruku u query
+
         return redirect('/?message=Morate biti ulogovani');
     }
 }
@@ -100,7 +78,8 @@ export default function Admin() {
     const [openWaitersDialog, setOpenWaitersDialog] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
-    const [adminName, setAdminName] = useState("Admin1");
+    const location = useLocation();
+    const [adminName, setAdminName] = useState(location.state?.user.Ime);
     const [currentTime, setCurrentTime] = useState("");
 
     const data = useLoaderData();
@@ -143,18 +122,13 @@ export default function Admin() {
         };
     }, []);
 
-    // TODO dodati funkcionalnost da kada
-    //  korisnik zeli da izmijeni proizvod
-    //  ProductDialog dobije podatke o proizvodu
-    //  i odmah popuni dialog
     const onAddProduct = (product) => {
         setOpenProductsDialog(true);
     };
 
     const handleEditProduct = (product) => {
         setSelectedProduct(product);
-        // TODO poslati put fetch zahtjev ka serveru koristeci
-        //  za rutu informacije o kategoriji i tipu
+
         setOpenProductsDialog(true);
     };
     const onAddWaiter = (waiter) => {
@@ -163,7 +137,7 @@ export default function Admin() {
     };
 
     const handleDeleteProduct = async (productId) => {
-        // Delete product with the given ID from the server
+
         try {
             const res = await fetch(`http://localhost:3000/products/${productId}`, {
                 method: "DELETE",
@@ -173,7 +147,7 @@ export default function Admin() {
             });
 
             if (res){
-                setSuccessMessage("Proizvod uspjesno obrisan");
+                setSuccessMessage("Proizvod uspješno obrisan");
 
                 setProducts(prevProducts => (
                     prevProducts.filter((product) => product.ID !== productId)
@@ -184,8 +158,11 @@ export default function Admin() {
             }
         }
         catch (e) {
-            setErrorMessage('Problem rilikom brisanja proizvoda');
+            setErrorMessage('Problem prilikom brisanja proizvoda');
             console.log(e);
+        }
+        finally {
+            setSelectedProduct(null);
         }
     };
 
@@ -200,7 +177,7 @@ export default function Admin() {
             })
 
             if (res.ok){
-                setSuccessMessage("Waiter deleted successfully.");
+                setSuccessMessage("Konobar uspješno obrisan.");
                 setWaiters(prevWaiters => (
                     prevWaiters.filter(waiter => waiter.ID !== waiterId)
                 ));
@@ -212,7 +189,7 @@ export default function Admin() {
         }
         catch (e) {
             console.log(e);
-            setErrorMessage("Failed to delete waiter.");
+            setErrorMessage("Problem prilikom brisanja proizvoda.");
         }
     };
 
@@ -315,6 +292,8 @@ export default function Admin() {
                     pType={selectedProduct ? selectedProduct.Naziv_Vrste : ''}
                     pPrice={ selectedProduct ? selectedProduct.Cijena : ''}
                     setSelectedProduct={setSelectedProduct}
+                    setSuccessMessage={setSuccessMessage}
+                    setFailureMessage={setErrorMessage}
                 />
             </Dialog>
             <Dialog open={openWaitersDialog} onClose={() => setOpenWaitersDialog(false)}>
@@ -322,6 +301,7 @@ export default function Admin() {
                     setOpenDialog={setOpenWaitersDialog}
                     setWaiters={setWaiters}
                     setFilteredWaiters={setFilteredWaiters}
+                    setSuccessMessage={setSuccessMessage}
                 />
             </Dialog>
             <Snackbar

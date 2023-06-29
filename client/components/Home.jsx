@@ -1,30 +1,27 @@
 import React, {useEffect} from "react";
 import { useState } from "react";
-import {useCookies} from "react-cookie";
-import jwt_decode from "jwt-decode";
-import { redirect, useNavigate, useLoaderData } from "react-router-dom";
+import { useNavigate, useLoaderData } from "react-router-dom";
 
-import {Container, Typography, TextField, Button, InputAdornment, Alert} from '@mui/material';
+import {Container, Typography, TextField, Button, InputAdornment, Alert, ThemeProvider} from '@mui/material';
 import {AccountCircle, LockOutlined} from "@mui/icons-material";
 import Cookies from 'js-cookie';
 
 import background from "../src/assets/Pozadina.jpeg";
 
 
-export async function loader({ request }) {
-    console.log('Pozvao sam homeLoader');
+export function loader({ request }) {
+
     return new URL(request.url).searchParams.get("message");
 }
 
 
-export default function Home(){
+export default function Home({ theme }){
 
     const [user, setUser] = useState({ username: '', password: '' });
     const [passwordError, setPasswordError] = useState("");
 
     let message = useLoaderData();
 
-    console.log('Home component');
     const navigate = useNavigate();
 
     function getHeader(){
@@ -33,6 +30,41 @@ export default function Home(){
             'Content-Type': 'application/json'
         }
     }
+
+    function redirectUser(user){
+        if (user.Naziv_Uloge === 'Konobar'){
+            navigate("/cash-register", {
+                state: {
+                    user
+                }
+            });
+        }
+        else {
+            navigate("/admin", {
+                state: {
+                    user
+                }
+            });
+        }
+    }
+
+    useEffect( () => {
+        console.log('Pokrecem useEffect()');
+        fetch('http://localhost:3000/', {
+            headers: {
+                Authorization: `Bearer ${Cookies.get('token')}`
+            }
+        })
+            .then(res => res.json())
+            .then(user => {
+                if (user){
+                    console.log('Korisnik vec ulogovan', user);
+                    redirectUser(user);
+                }
+            })
+            .catch(err => console.log(err.message));
+    }, []);
+
 
     function handleInputChange(event){
         setUser((prevUser) => {
@@ -47,7 +79,7 @@ export default function Home(){
 
     function onSubmit(event){
         event.preventDefault();
-        // message = "";
+
 
         if (!user.username || !user.password) return;
 
@@ -79,20 +111,21 @@ export default function Home(){
                     Cookies.set('token', token, { path: '/' });
                 }
 
-            if (user.Naziv_Uloge === 'Konobar'){
-                navigate("/cash-register", {
-                    state: {
-                        user
-                    }
-                });
-            }
-            else {
-                navigate("/admin", {
-                    state: {
-                        user
-                    }
-                });
-            }
+
+                if (user.Naziv_Uloge === 'Konobar'){
+                    navigate("/cash-register", {
+                        state: {
+                            user
+                        }
+                    });
+                }
+                else {
+                    navigate("/admin", {
+                        state: {
+                            user
+                        }
+                    });
+                }
 
         })
             .catch(err => {
@@ -134,7 +167,11 @@ export default function Home(){
                 }}
                 onSubmit={onSubmit}
             >
-                <Typography variant="h5" component="h1" gutterBottom>
+                <Typography
+                    variant="h5"
+                    component="h1"
+                    gutterBottom
+                >
                     Forma
                 </Typography>
                 <TextField
@@ -171,11 +208,11 @@ export default function Home(){
                     onChange={handleInputChange}
                 />
                 {passwordError && (
-                    <Alert severity="error" style={{ marginBottom: "16px" }}>
+                    <Alert severity="error" style={{ marginBottom: "16px", opacity: 0.8 }}>
                         {passwordError}
                     </Alert>)}
                 {message && (
-                    <Alert severity="error" style={{marginBottom: '10px'}}>
+                    <Alert severity="error" style={{marginBottom: '10px', opacity: 0.8 }}>
                         {message}
                     </Alert>
                 )}

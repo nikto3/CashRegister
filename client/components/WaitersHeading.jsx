@@ -20,28 +20,30 @@ const WaitersHeading = ({ onAddWaiter, onSearch }) => {
             }}
         >
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '15px' }}>
-                <Typography variant="h5">Konobari</Typography>
+                <Typography variant="h5">Korisnici</Typography>
                 <IconButton color="inherit" onClick={onAddWaiter}>
                     <AddCircleOutline />
                 </IconButton>
             </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '15px', width: '60%' }}>
                 <TextField
-                    label="Search by name"
+                    label="Pretraži po imenu"
                     variant="outlined"
                     size="small"
                     value={name}
+                    fullWidth
                     onChange={(e) => setName(e.target.value)}
                 />
                 <IconButton color="inherit" onClick={() => onSearch(name, username)}>
                     <Search />
                 </IconButton>
             </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '6px', width: '60%' }}>
                 <TextField
-                    label="Search by username"
+                    label="Pretraži po korisničkom imenu"
                     variant="outlined"
                     size="small"
+                    fullWidth
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                 />

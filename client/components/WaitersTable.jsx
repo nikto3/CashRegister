@@ -39,7 +39,6 @@ const WaitersTable = ({ waiters, onEdit, onDelete }) => {
                         <WaiterTableRow
                             key={waiter.id}
                             waiter={waiter}
-                            onEdit={onEdit}
                             onDelete={onDelete}
                             isEvenRow={index % 2 === 0}
                         />

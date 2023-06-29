@@ -76,7 +76,7 @@ async function getProductsTodayQuery(){
             .input('date', sql.Date, date)
             .query
             `
-                SELECT P.Naziv, P.Cijena, V.Naziv_Kat, COUNT(*) AS Kolicina
+                SELECT P.Naziv, P.Cijena, V.Naziv_Kat, SUM(Kolicina) AS Kolicina
                 FROM Racun_proizvod RP JOIN Izvjestaj I on I.ID = RP.Izvjestaj_ID
                 JOIN Proizvod P on RP.P_ID = P.ID JOIN Vrsta V on P.Naziv_Vrste = V.Naziv
                 JOIN Kategorija K on V.Naziv_Kat = K.Naziv

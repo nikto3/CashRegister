@@ -31,7 +31,7 @@ const ProductsHeading = ({ onAddProduct, onSearch }) => {
             <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center',  padding: '5px' }}>
                     <TextField
-                        label="Search by name"
+                        label="Naziv"
                         variant="outlined"
                         value={name}
                         size="small"
@@ -43,9 +43,9 @@ const ProductsHeading = ({ onAddProduct, onSearch }) => {
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', padding: '5px' }}>
                     <FormControl fullWidth sx={{ minWidth: '200px' }}>
-                        <InputLabel>Search by Category</InputLabel>
+                        <InputLabel>Pretraži po kategoriji</InputLabel>
                         <Select
-                            label="Search by Category"
+                            label="Pretraži po kategoriji"
                             value={category}
                             onChange={(e) => setCategory(e.target.value || '')}
                         >
@@ -67,9 +67,9 @@ const ProductsHeading = ({ onAddProduct, onSearch }) => {
 
                 <Box sx={{ display: 'flex', alignItems: 'center', padding: '5px' }}>
                     <FormControl fullWidth sx={{ minWidth: '200px' }}>
-                        <InputLabel>Search by Type</InputLabel>
+                        <InputLabel>Pretraži po vrsti</InputLabel>
                         <Select
-                            label="Search by Type"
+                            label="Pretraži po vrsti"
                             value={type}
                             onChange={(e) => {
                                 setType(e.target.value || '');

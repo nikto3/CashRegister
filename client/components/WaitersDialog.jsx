@@ -13,7 +13,7 @@ import {Check, Close} from "@mui/icons-material";
 import {useEffect, useState} from "react";
 import Cookies from "js-cookie"
 
-export default function WaitersDialog({ setOpenDialog, setWaiters, setFilteredWaiters }) {
+export default function WaitersDialog({ setOpenDialog, setWaiters, setFilteredWaiters, setSuccessMessage }) {
     const [name, setName] = useState("");
     const [surname, setSurname] = useState("");
     const [username, setUsername] = useState("");
@@ -21,11 +21,8 @@ export default function WaitersDialog({ setOpenDialog, setWaiters, setFilteredWa
     const [errors, setErrors] = useState({tmp: ''});
     const [formSubmitted, setFormSubmitted] = useState(false);
 
-    console.log('Rendered WaitersDialog component')
-
     useEffect(() => {
         if (Object.keys(errors).length === 0 && formSubmitted) {
-            console.log('Forma validna, druga provjera');
             console.log('Errors:', errors);
             setOpenDialog(false);
         }
@@ -53,7 +50,7 @@ export default function WaitersDialog({ setOpenDialog, setWaiters, setFilteredWa
 
     const handleSave = async () => {
         if (validateForm()) {
-            console.log('Forma validna, prva provjera');
+
             const cookie = Cookies.get('token');
             try {
                 const res = await fetch('http://localhost:3000/waiters', {
@@ -77,7 +74,7 @@ export default function WaitersDialog({ setOpenDialog, setWaiters, setFilteredWa
                 }
 
                 else if (res.ok){
-                    console.log('Konobar uspjesno sacuvan')
+                    setSuccessMessage('Konobar uspješno sačuvan');
                     const newWaiter = await res.json();
                     setWaiters(prevWaiters => [...prevWaiters, newWaiter]);
                     setFilteredWaiters(prevWaiters => [...prevWaiters, newWaiter]);
@@ -88,6 +85,7 @@ export default function WaitersDialog({ setOpenDialog, setWaiters, setFilteredWa
             }
             catch (e) {
                 console.log(e);
+
             }
         }
     };

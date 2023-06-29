@@ -56,7 +56,8 @@ const checkIfLogged = async (req, res, next) => {
         const user = await auth(token);
 
         if (user){
-            return res.status(200).json({message: 'You are already logged in'}, user);
+            console.log('Korisnik vec ulogovan', {user});
+            return res.status(200).json(user);
         }
         else {
             next();
