@@ -24,7 +24,7 @@ const WaitersTable = ({ waiters, onEdit, onDelete }) => {
                             <Typography variant="h7" sx={{ fontWeight: 'bold' }}>Prezime</Typography>
                         </TableCell>
                         <TableCell>
-                            <Typography variant="h7" sx={{ fontWeight: 'bold' }}>Korisnicko ime</Typography>
+                            <Typography variant="h7" sx={{ fontWeight: 'bold' }}>Korisničko ime</Typography>
                         </TableCell>
                         <TableCell>
                             <Typography variant="h7" sx={{ fontWeight: 'bold' }}>Uloga</Typography>

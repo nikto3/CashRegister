@@ -10,6 +10,7 @@ const theme = createTheme({
     }});
 
 export default function NotFoundPage() {
+
     return (
         <ThemeProvider theme={theme}>
             <div
@@ -23,10 +24,10 @@ export default function NotFoundPage() {
                     gap: "16px"
                 }}
             >
-                <Typography variant="h2" component="h1" gutterBottom>
+                <Typography variant="h1" component="h1" gutterBottom>
                     Ups! Stranica nije pronađena
                 </Typography>
-                <Typography variant="h4" component="p" gutterBottom>
+                <Typography variant="h3" component="p" gutterBottom>
                     Stranica koju tražite ne postoji.
                 </Typography>
                 <Link

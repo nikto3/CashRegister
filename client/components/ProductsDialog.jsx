@@ -47,7 +47,7 @@ export default function ProductsDialog({
         if (type.trim() === "") {
             newErrors.type = "Tip je obavezno polje.";
         }
-        if (!price) {
+        if (price.trim() === '') {
             newErrors.price = "Cijena je obavezno polje.";
         }
         setErrors(newErrors);
@@ -265,7 +265,7 @@ export default function ProductsDialog({
                         </FormControl>
                     )}
 
-                    <FormControl required fullWidth sx={{ m: "10px" }}>
+                    <FormControl required fullWidth sx={{ m: "10px", borderColor: errors.price ? "red" : undefined }} >
                         <NumericFormat
                             label="Cijena *"
                             name="price"
@@ -278,6 +278,11 @@ export default function ProductsDialog({
                             customInput={TextField}
 
                         />
+                        {errors.price && (
+                            <Box sx={{ color: "red", fontSize: "12px" }}>
+                                {errors.price}
+                            </Box>
+                        )}
                     </FormControl>
 
                 </Box>
