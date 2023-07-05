@@ -10,9 +10,11 @@ const waitersRouter = require('./routes/waiters.route');
 const productsRouter = require('./routes/products.route');
 const billRouter = require('./routes/bill.route');
 const reportRouter = require('./routes/report.route');
-const passport = require('passport');
+const backupsRouter = require('./routes/backups.route');
 const cors = require('cors');
 const cookie = require('cookie-parser');
+const path = require('path')
+
 
 
 connectToDB()
@@ -24,10 +26,12 @@ connectToDB()
 
 app.use(cors({ credentials: true }));
 app.use(cookie());
-app.use(express.urlencoded({extended: true} ));
-app.use(express.json());
+app.use(express.urlencoded({ extended: true, limit: '10mb'} ));
 
-app.use(passport.initialize());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// app.use(passport.initialize());
 
 
 app.use('/', loginRouter);
@@ -39,6 +43,7 @@ app.use('/waiters', waitersRouter);
 app.use('/products', productsRouter);
 app.use('/bill', billRouter);
 app.use('/report', reportRouter);
+app.use('/backups', backupsRouter);
 
 
 app.listen(process.env.PORT, () =>

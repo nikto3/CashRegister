@@ -26,7 +26,8 @@ export default function ProductsDialog({
                                            pPrice,
                                            setSelectedProduct,
                                            setSuccessMessage,
-                                           setFailureMessage
+                                           setFailureMessage,
+                                            pPicture
                                        }) {
     const [ID, setID] = useState(pID);
     const [name, setName] = useState(pName);
@@ -34,6 +35,20 @@ export default function ProductsDialog({
     const [type, setType] = useState(pType);
     const [price, setPrice] = useState(pPrice);
     const [errors, setErrors] = useState({});
+    const [picture, setPicture] = useState(pPicture);
+
+
+    const handlePictureChange = (files) => {
+        if (files.length > 0) {
+            const file = files[0];
+            // Perform any additional validation or processing here if needed
+            console.log(file);
+            setPicture(file);
+        } else {
+            setPicture(null);
+        }
+    };
+
 
     const [toAdd, setToAdd] = useState(pName === '' && pCategory === '' && pType === '' && pPrice === '');
     const validateForm = () => {
@@ -47,7 +62,7 @@ export default function ProductsDialog({
         if (type.trim() === "") {
             newErrors.type = "Tip je obavezno polje.";
         }
-        if (price.trim() === '') {
+        if (price === '') {
             newErrors.price = "Cijena je obavezno polje.";
         }
         setErrors(newErrors);
@@ -128,21 +143,46 @@ export default function ProductsDialog({
 
             const cookie = Cookies.get('token');
 
+            console.log('To add:', toAdd);
             try{
-                const res = await fetch(`http://localhost:3000/products`,{
-                    method: toAdd ? 'POST' : 'PUT',
-                    headers: {
-                        Authorization: `Bearer ${cookie}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(
-                        {
-                            ID,
-                            name,
-                            price,
-                            type
 
-                        })
+                const header = {
+                    Authorization: `Bearer ${cookie}`
+                }
+
+                const formData = new FormData();
+                formData.append('ID', ID);
+                formData.append('name', name);
+                formData.append('price', price);
+                formData.append('type', type);
+                if (toAdd){
+                    formData.append('picture', picture);
+
+                }
+                else {
+                    header['Content-Type'] = 'application/json'
+                }
+                console.log('ID:', ID);
+                console.log('name:', name);
+                console.log('price:', price);
+                console.log('type:', type);
+                console.log('picture', picture)
+                const method = toAdd ? 'POST' : 'PUT';
+                console.log('method', method);
+
+
+                console.log('formData: ', formData);
+                const res = await fetch(`http://localhost:3000/products`,{
+                    method,
+                    headers: header,
+                    body: toAdd
+                        ? formData
+                        : JSON.stringify({
+                        ID,
+                        name,
+                        price,
+                        type
+                    })
                 })
 
                 if (res.ok){
@@ -158,7 +198,7 @@ export default function ProductsDialog({
                     setSuccessMessage('Proizvod uspješno sačuvan');
                 }
                 else {
-                    setFailureMessage('Problem prilikom upisivanja novog proizvoda');
+                    setFailureMessage('Greška prilikom upisivanja novog proizvoda');
                 }
             }
             catch(err){
@@ -285,6 +325,25 @@ export default function ProductsDialog({
                         )}
                     </FormControl>
 
+                    {toAdd && (
+                        <FormControl fullWidth sx={{ m: "10px" }}>
+                            <label htmlFor="picture">
+                                <input
+                                    type="file"
+                                    id="picture"
+                                    aria-label="Odaberi sliku"
+                                    name="picture"
+                                    style={{ display: 'none' }}
+                                    onChange={(event) => handlePictureChange(event.target.files)}
+                                />
+                                <Button variant="outlined" component="span">
+                                    Odaberi sliku
+                                </Button>
+                            </label>
+                        </FormControl>
+                    )}
+
+
                 </Box>
             </DialogContent>
             <DialogActions>
@@ -296,14 +355,14 @@ export default function ProductsDialog({
                         setSelectedProduct(null);
                     }}
                 >
-                    Izadji
+                    Izađi
                 </Button>
                 <Button
                     color="primary"
                     startIcon={<Check />}
                     onClick={handleSave}
                 >
-                    Sacuvaj
+                    Sačuvaj
                 </Button>
             </DialogActions>
         </>

@@ -81,6 +81,7 @@ export default function Admin() {
     const location = useLocation();
     const [adminName, setAdminName] = useState(location.state?.user.Ime);
     const [currentTime, setCurrentTime] = useState("");
+    const [picture, setPicture] = useState(null);
 
     const data = useLoaderData();
 
@@ -146,7 +147,7 @@ export default function Admin() {
                 },
             });
 
-            if (res){
+            if (res.ok){
                 setSuccessMessage("Proizvod uspješno obrisan");
 
                 setProducts(prevProducts => (
@@ -156,9 +157,12 @@ export default function Admin() {
                     prevProducts.filter((product) => product.ID !== productId)
                 ));
             }
+            else {
+                setErrorMessage('Nije moguće obrisati proizvod');
+            }
         }
         catch (e) {
-            setErrorMessage('Problem prilikom brisanja proizvoda');
+            setErrorMessage('Nije moguće obrisati proizvod');
             console.log(e);
         }
         finally {
@@ -186,10 +190,12 @@ export default function Admin() {
                     prevWaiters.filter(waiter => waiter.ID !== waiterId)
                 ));
             }
+            else Š
+            setErrorMessage('Nije moguće obrisati korisnika');
         }
         catch (e) {
             console.log(e);
-            setErrorMessage("Problem prilikom brisanja proizvoda.");
+            setErrorMessage("Nije moguće obrisati korisnika");
         }
     };
 
@@ -294,6 +300,7 @@ export default function Admin() {
                     setSelectedProduct={setSelectedProduct}
                     setSuccessMessage={setSuccessMessage}
                     setFailureMessage={setErrorMessage}
+                    pPicture={picture}
                 />
             </Dialog>
             <Dialog open={openWaitersDialog} onClose={() => setOpenWaitersDialog(false)}>

@@ -4,6 +4,7 @@ import MenuItem from "./MenuItem.jsx";
 
 export default function Menu({ items, onSelectItemFunc }) {
 
+
     return (
         <Grid container spacing={3}>
             {items.map((item) => (
@@ -13,6 +14,7 @@ export default function Menu({ items, onSelectItemFunc }) {
                         name={item.Naziv}
                         price={item.Cijena}
                         onSelectItem={onSelectItemFunc}
+                        picture={item.Slika}
                         />
                 </Grid>
             ))}

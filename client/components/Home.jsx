@@ -102,7 +102,7 @@ export default function Home({ theme }){
                     return res.json();
                 }
                 else {
-                    throw new Error("Netacno korisnicko ime ili lozinka");
+                    throw new Error("Netačno korisničko ime ili lozinka");
                 }
             }).then(data => {
                 const { token, user } = data;

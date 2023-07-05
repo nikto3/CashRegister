@@ -12,11 +12,12 @@ async function addProductQuery(product){
             .input('Naziv', sql.VarChar(50), product.name)
             .input('Cijena', sql.Decimal(5, 2), product.price)
             .input('Naziv_Vrste', sql.VarChar(50), product.type)
+            .input('Slika', sql.VarChar(50), product.picturePath)
             .query
             `
-                INSERT INTO Proizvod ("Cijena", "Naziv_Vrste", "Naziv")
+                INSERT INTO Proizvod ("Cijena", "Naziv_Vrste", "Naziv", "Slika")
                 OUTPUT INSERTED.*
-                VALUES (@Cijena, @Naziv_Vrste, @Naziv)
+                VALUES (@Cijena, @Naziv_Vrste, @Naziv, @Slika)
             `
         return res.recordset[0];
     }

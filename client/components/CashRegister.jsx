@@ -186,7 +186,7 @@ export default function CashRegister() {
             return;
         }
 
-        const confirmPrint = window.confirm("Da li ste sigurni?Izvjestaj mozete napraviti samo jednom u toku dana");
+        const confirmPrint = window.confirm("Da li ste sigurni?Izvještaj možete napraviti samo jednom u toku dana");
         if (!confirmPrint){
             return;
         }
@@ -394,6 +394,7 @@ export default function CashRegister() {
                                     items={billItems}
                                     onDeleteItem={onDeleteItem}
                                     handlePrintBill={handlePrintBill}
+                                    reportIsPrinted={reportIsPrinted}
                                     />
                                 </Box>
                             </Box>

@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
+const upload = require('../utils/multer.config');
+
 const { deleteProduct, addProduct, updateProduct, getProductsToday } = require('../controllers/product.controller');
 const { requestAdminAuth, requestAuth } = require('../controllers/auth.controller');
 
@@ -11,6 +13,7 @@ router.get('/',
 
 router.post('/',
     requestAdminAuth,
+    upload.single('picture'),
     addProduct
 );
 

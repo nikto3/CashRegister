@@ -3,7 +3,7 @@ import { Typography, Box, Paper, Button } from "@mui/material";
 import Item from "./Item.jsx";
 import { Print } from "@mui/icons-material";
 
-export default function Bill({ items, onDeleteItem, handlePrintBill }) {
+export default function Bill({ items, onDeleteItem, handlePrintBill, reportIsPrinted }) {
 
     const calculateTotal = () => {
         let sum = 0;
@@ -73,7 +73,7 @@ export default function Bill({ items, onDeleteItem, handlePrintBill }) {
             <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                 <Button
                     variant="outlined"
-
+                    disabled={reportIsPrinted}
                     startIcon={<Print />}
                     onClick={handlePrintBill}
                     sx={{
